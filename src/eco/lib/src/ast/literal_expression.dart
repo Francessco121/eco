@@ -1,0 +1,13 @@
+import 'expression.dart';
+import 'expression_visitor.dart';
+
+class LiteralExpression implements Expression {
+  final Object value;
+
+  LiteralExpression(this.value);
+
+  @override
+  T accept<T>(ExpressionVisitor<T> visitor) {
+    return visitor.visitLiteral(this);
+  }
+}

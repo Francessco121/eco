@@ -1,0 +1,5 @@
+foreach index, value in ["hello", "world!"] {
+  var indexStr = Object.toString(index);
+
+  System.print("[" .. indexStr .. "] " .. value);
+}

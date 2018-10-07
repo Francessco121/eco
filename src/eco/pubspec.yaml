@@ -1,0 +1,14 @@
+name: eco
+author: Ethan Lafrenais
+
+publish_to: none
+
+environment:
+  sdk: '>=2.0.0 <3.0.0'
+
+dependencies:
+  charcode: ^1.1.2
+  meta: ^1.1.6
+  path: ^1.6.2
+  source_span: ^1.4.1
+  string_scanner: ^1.0.4

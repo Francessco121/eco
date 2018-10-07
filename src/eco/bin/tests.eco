@@ -1,0 +1,383 @@
+import "eco:assert" as Assert;
+
+// // // // COMMENTS // // // //
+// I'm a comment!
+/* I'm
+a multiline
+comment! 
+*/
+
+
+// // // // BINARY OPERATORS // // // //
+Assert.isTrue(true == true, "Equality operator test failed.");
+Assert.isTrue(true != false, "Not equality operator test failed.");
+Assert.isTrue(10 < 11, "Less than operator test failed.");
+Assert.isTrue(10 <= 10, "Less than or equal to operator test failed.");
+Assert.isTrue(11 > 10, "Greater than operator test failed.");
+Assert.isTrue(10 >= 10, "Greater than or equal to operator test failed.");
+Assert.isTrue(1 + 1 == 2, "Addition operator test failed.");
+Assert.isTrue(1 - 1 == 0, "Subtraction operator test failed.");
+Assert.isTrue(2 * 3 == 6, "Multiplication operator test failed.");
+Assert.isTrue(12 / 4 == 3, "Division operator test failed.");
+
+
+// // // // LOGICAL OPERATORS // // // //
+Assert.isTrue((true and true) == true, "Logical and test failed.");
+Assert.isTrue((false or true) == true, "Logical or test failed.");
+Assert.isTrue((true or false and false) == true, "Logical operator precedence test failed.");
+
+
+// // // // PREFIX UNARY OPERATORS (EXCEPT LENGTH) // // // //
+Assert.isTrue(!true == false, "Unary not test failed.");
+Assert.isTrue(-(-1) == 1, "Negation test #1 failed.");
+Assert.isTrue(-1 == 0 - 1, "Negation test #2 failed.");
+
+
+// // // // TERNARY CONDITIONAL OPERATOR // // // //
+Assert.isTrue((1 == 1 ? "hi" : "nooo") == "hi", "Ternary conditional operator true test failed.");
+Assert.isTrue((1 == 2 ? "hi" : "nooo") == "nooo", "Ternary conditional operator false test failed.");
+
+
+// // // // VARIABLES // // // //
+var test;
+Assert.isNull(test, "Variable default value test failed.");
+
+var testVar = 0;
+Assert.isTrue(testVar == 0, "Variable initializer test failed.");
+
+testVar = 5;
+Assert.isTrue(testVar == 5, "Variable assignment test failed.");
+
+var testVar = 6;
+Assert.isTrue(testVar == 6, "Variable re-declaration test failed.");
+
+
+// // // // POSTFIX UNARY OPERATORS // // // //
+var a = 5;
+Assert.isTrue(a++ == 5, "Postfix increment operator test #1 failed.");
+Assert.isTrue(a == 6, "Postfix increment operator test #2 failed.");
+a = 5;
+Assert.isTrue(a-- == 5, "Postfix decrement operator test #1 failed.");
+Assert.isTrue(a == 4, "Postfix decrement operator test #2 failed.");
+
+
+// // // // WHILE LOOP // // // //
+var counter = 0;
+while counter < 10 {
+	counter++;
+}
+	
+Assert.isTrue(counter == 10, "While loop test failed.");
+
+
+// // // // FOR LOOP // // // //
+var counter = 0;
+for var i = 0; i < 10; i++ {
+	counter = i + 1;
+}
+
+Assert.isTrue(counter == 10, "For loop test failed.");
+
+
+// // // // IF STATEMENT // // // //
+var selection;
+if true {
+	selection = "then";
+}
+	
+Assert.isTrue(selection == "then", "If statement then clause test failed.");
+
+var selection = null;
+if false {
+	selection = "then";
+}
+
+Assert.isNull(selection, "If statement without else clause test failed.");
+
+if true {
+	selection = "then";
+} else {
+	selection = "else";
+}
+	
+Assert.isTrue(selection == "then", "If-Else statement then clause test failed.");
+
+if false {
+	selection = "then";
+} else {
+	selection = "else";
+}
+
+Assert.isTrue(selection == "else", "If-Else statement else clause test failed.");
+
+
+// // // // SCOPE // // // //
+var scopeVar = 1;
+var scopeVar2 = 5;
+
+{
+	Assert.isTrue(scopeVar == 1, "Variable scope inheritance get test failed.");
+	
+	scopeVar = 2;
+	Assert.isTrue(scopeVar == 2, "Variable scope inheritance set test failed.");
+	
+	var scopeVar = 3;
+	Assert.isTrue(scopeVar == 3, "Variable hiding test failed.");
+	
+	var scopeVar2 = scopeVar2;
+	scopeVar2++;
+	
+	Assert.isTrue(scopeVar2 == 6, "Variable scope inheritance in initializer test failed.");
+}
+
+Assert.isTrue(scopeVar == 2, "Variable scope test #1 failed.");
+Assert.isTrue(scopeVar2 == 5, "Variable scope test #2 failed.");
+
+
+// // // // FOR-LOOP SCOPE // // // //
+var outer = 5;
+var i = 8;
+for var i = 0; i < 1; i++ {
+	Assert.isTrue(outer == 5, "For-loop scope inheritance test failed.");
+	Assert.isTrue(i == 0, "For-loop clause scope test failed.");
+}
+
+Assert.isTrue(i == 8, "For-loop scope test failed.");
+
+
+// // // // FUNCTIONS // // // //
+fn normalFunc() {
+	return "normal";
+}
+
+var anonFunc = fn() {
+	return "anon";
+};
+
+Assert.isTrue(normalFunc() == "normal", "Function declaration test failed.");
+Assert.isTrue(anonFunc() == "anon", "Anonymous function declaration test failed.");
+
+
+// // // // ARRAYS // // // //
+var array = [0, 3, 4, 6];
+Assert.isTrue(array[0] == 0, "Array index[0] test failed.");
+Assert.isTrue(array[1] == 3, "Array index[1] test failed.");
+
+
+// // // // MAPS // // // //
+var map = {
+	"key": true,
+	10 + 1: {
+		"inner": fn() { }
+	}
+};
+
+Assert.isTrue(map["key"] == true, "Map index['key'] test failed.");
+Assert.isNotNull(map[11]["inner"], "Map index[10]['inner'] test failed.");
+
+var programming = {
+	is: {
+		fun: true
+	}
+};
+
+Assert.isTrue(programming.is.fun == true, "Map getter test failed.");
+
+
+// // // // LENGTH OPERATOR // // // //
+var array = [10, 20, 30];
+var map = { 1: null, 2: null };
+var string = "aaaa";
+
+Assert.isTrue(#array == 3, "Array length test failed.");
+Assert.isTrue(#map == 2, "Map length test failed.");
+Assert.isTrue(#string == 4, "String length test failed.");
+
+
+// // // // CONCATENATION OPERATOR // // // //
+var a = [1, 2, 3];
+var b = [4, 5, 6];
+var c = a .. b;
+Assert.isTrue(c[3] == 4, "Array concatenation test failed.");
+
+var str1 = "Hello";
+var str2 = "World!";
+var str3 = str1 .. " " .. str2;
+Assert.isTrue(str3 == "Hello World!", "String concatenation test failed.");
+
+
+// // // // FOREACH LOOP // // // //
+var array = [1, 2, 3];
+var map = { "key": "value" };
+
+var reverse = [];
+foreach i, value in array {
+	reverse[#array - i - 1] = value;
+}
+
+Assert.isTrue(reverse[0] == 3, "Foreach array test failed.");
+
+var reverse = {};
+foreach key, value in map {
+	reverse[value] = key;
+}
+
+Assert.isTrue(reverse["value"] == "key", "Foreach map test failed.");
+
+
+// // // // BREAK // // // //
+// For-loop
+var value;
+for var i = 0; i < 10; i++ {
+	if i == 5 {
+		break;
+  }
+		
+	value = i;
+}
+
+Assert.isTrue(value == 4, "For loop break test failed.");
+
+// While-loop
+var i = 0;
+while i < 10 {
+	if i++ == 5 {
+		break;
+  }
+		
+	value = i;
+}
+
+Assert.isTrue(value == 5, "While loop break test failed.");
+
+// Foreach-loop
+var value;
+var list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+foreach _, item in list {
+	if item == 5 {
+		break;
+  }
+	
+	value = item;
+}
+
+Assert.isTrue(value == 4, "Foreach loop break test failed.");
+
+
+// // // // CONTINUE // // // //
+var list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+// For-loop
+var copy = [];
+for var i = 0; i < #list; i++ {
+	var value = list[i];
+	
+	if value == 5 {
+		continue;
+  }
+		
+	copy[i] = value;
+}
+
+Assert.isTrue(copy[5] == 6, "For loop continue test #1 failed.");
+Assert.isNull(copy[4], "For loop continue test #2 failed.");
+
+// While-loop
+var copy = [];
+
+var i = 0;
+while i < #list {
+	var value = list[i++];
+	
+	if value == 5 {
+		continue;
+  }
+		
+	copy[i - 1] = value;
+}
+
+Assert.isTrue(copy[5] == 6, "While loop continue test #1 failed.");
+Assert.isNull(copy[4], "While loop continue test #2 failed.");
+
+// Foreach-loop
+var copy = [];
+
+foreach i, value in list {
+	if value == 5 {
+		continue;
+  }
+		
+	copy[i] = value;
+}
+
+Assert.isTrue(copy[5] == 6, "Foreach loop continue test #1 failed.");
+Assert.isNull(copy[4], "Foreach loop continue test #2 failed.");
+
+
+// // // // STRING ESCAPE CHARACTERS // // // //
+var SINGLE_QUOTE_CHAR = 39;
+var DOUBLE_QUOTE_CHAR = 34;
+var BACKSLASH_CHAR = 92;
+var NEWLINE_CHAR = 10;
+var CARRIAGE_RETURN_CHAR = 13;
+var HORIZONTAL_TAB_CHAR = 9;
+
+var escapes = "\'\\\n\r\t\"";
+
+Assert.isTrue(String.byte(escapes, 0) == SINGLE_QUOTE_CHAR, "String single-quote escape test failed.");
+Assert.isTrue(String.byte(escapes, 1) == BACKSLASH_CHAR, "String backslash escape test failed.");
+Assert.isTrue(String.byte(escapes, 2) == NEWLINE_CHAR, "String new-line escape test failed.");
+Assert.isTrue(String.byte(escapes, 3) == CARRIAGE_RETURN_CHAR, "String carriage return escape test failed.");
+Assert.isTrue(String.byte(escapes, 4) == HORIZONTAL_TAB_CHAR, "String double-quote escape test failed.");
+Assert.isTrue(String.byte(escapes, 5) == DOUBLE_QUOTE_CHAR, "String double-quote escape test failed.");
+
+
+// // // // MULTI-LINE STRINGS // // // //
+var str = "Hello
+World!";
+
+Assert.isTrue(String.sub(str, 0, 5) == "Hello", "Multi-line string test #1 failed.");
+Assert.isTrue(String.sub(str, #str - 6, 6) == "World!", "Multi-line string test #2 failed.");
+
+var NEWLINE_CHAR = 10;
+var CARRIAGE_RETURN_CHAR = 13;
+
+var newlineChar1 = String.byte(str, 5);
+Assert.isTrue(newlineChar1 == NEWLINE_CHAR or newlineChar1 == CARRIAGE_RETURN_CHAR, 
+	"Multi-line string new-line character test #1 failed.");
+
+// Windows (\r\n) / Classic mac (\r)
+if newlineChar1 == CARRIAGE_RETURN_CHAR {
+	var newlineChar2 = String.byte(str, 6);
+
+	Assert.isTrue(newlineChar2 == NEWLINE_CHAR or newlineChar1 == "W", 
+		"Multi-line string new-line test #2 failed.");
+}
+
+
+// // // // CLOSURES // // // //
+fn closureTest() {
+	var innerVar = "test";
+	
+	return fn() {
+		return innerVar;
+	};
+}
+
+Assert.isTrue(closureTest()() == "test", "Closure test failed.");
+
+var i = 4;
+
+{
+	fn test() {
+		return i;
+	}
+
+	var i = 2;
+	var i = 2;
+	Assert.isTrue(test() == 4, "Closure lexical scope test failed.");
+}
+
+
+// // // // // // // //
+System.print("All tests succeeded!");

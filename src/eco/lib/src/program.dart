@@ -1,0 +1,186 @@
+import 'dart:async';
+import 'dart:collection';
+
+import 'runtime/standard_library/standard_library.dart';
+import 'runtime/built_in_library.dart';
+import 'runtime/library_environment.dart';
+import 'compilation_exception.dart';
+import 'library.dart';
+import 'library_identifier.dart';
+import 'source.dart';
+import 'source_resolver.dart';
+import 'source_tree.dart';
+import 'user_library.dart';
+
+class Program {
+  /// A map of all built-in libraries available to this program.
+  /// 
+  /// Map keys are the ID of the library.
+  UnmodifiableMapView<String, BuiltInLibrary> get builtInLibraries => _builtInLibrariesView;
+
+  /// A list of built-in library IDs which are implicitly imported
+  /// for all libraries ran by this program.
+  UnmodifiableListView<String> get implicitImports => _implicitImportsView;
+
+  /// A map of all libraries that have been loaded by this program.
+  UnmodifiableMapView<LibraryIdentifier, Library> get libraries => _librariesView;
+
+  /// The resolver used to load sources.
+  final SourceResolver sourceResolver;
+
+  /// The entire dependency tree of the program.
+  final sourceTree = new SourceTree();
+
+  UnmodifiableMapView<String, BuiltInLibrary> _builtInLibrariesView;
+  UnmodifiableListView<String> _implicitImportsView;
+  UnmodifiableMapView<LibraryIdentifier, Library> _librariesView;
+
+  final Map<String, BuiltInLibrary> _builtInLibraries = {};
+  final List<String> _implicitImports = [];
+  final Map<Uri, Source> _loadedSources = {};
+  final Map<Source, UserLibrary> _cachedUserLibraries = {};
+  final Map<Library, LibraryEnvironment> _cachedEnvironments = {};
+  final Map<LibraryIdentifier, Library> _libraries = {};
+
+  Program({
+    SourceResolver sourceResolver,
+    StandardLibraryOptions standardLibraryOptions
+  })
+    : this.sourceResolver = sourceResolver ?? FileSourceResolver() {
+
+    _builtInLibrariesView = UnmodifiableMapView<String, BuiltInLibrary>(_builtInLibraries);
+    _implicitImportsView = UnmodifiableListView<String>(_implicitImports);
+
+    // Add standard library
+    standardLibraryOptions ??= new StandardLibraryOptions(
+      systemPrintCallback: print
+    );
+
+    addLibrary(new SystemLibrary(standardLibraryOptions), importImplicitly: true);
+    addLibrary(new ObjectLibrary(), importImplicitly: true);
+  }
+
+  /// Makes the built-in [library] available to this program.
+  /// 
+  /// If [importImplicitly] is `true`, the library will be automatically
+  /// imported before normal library code is ran.
+  void addLibrary(BuiltInLibrary library, {bool importImplicitly = false}) {
+    _builtInLibraries[library.id] = library;
+
+    if (importImplicitly) {
+      _implicitImports.add(library.id);
+    }
+
+    final id = new LibraryIdentifier.forBuiltInLibrary(library.id);
+
+    _libraries[id] = library;
+  }
+
+  Future<LibraryEnvironment> run(Source source, {
+    LibraryEnvironment environment
+  }) async {
+    // Cache the source
+    _loadedSources[source.uri] = source;
+
+    // Create a new root source tree node
+    final treeNode = sourceTree.addRoot(source.uri);
+
+    // Create and cache the user library
+    final library = await UserLibrary.create(this, treeNode, source.sourceSpan);
+    _cachedUserLibraries[source] = library;
+
+    if (library.parseErrors.isNotEmpty) {
+      throw CompilationException(library.parseErrors);
+    }
+
+    // Create an environment for the library if one
+    // wasn't specified.
+    if (environment == null) {
+      environment = new LibraryEnvironment();
+
+      // Add implicit imports
+      _addImplicitImports(environment);
+    }
+
+    // Run the library to finalize the environment
+    library.run(this, environment);
+
+    // All set!
+    return environment;
+  }
+  
+  Future<Source> loadSource(Uri uri) async {
+    Source source = _loadedSources[uri];
+
+    if (source == null) {
+      source = await sourceResolver.load(uri);
+
+      if (source != null) {
+        _loadedSources[uri] = source;
+      }
+    }
+
+    return source;
+  }
+
+  Future<UserLibrary> loadUserLibrary(Source source, SourceTreeNode treeNode) async {
+    UserLibrary library = _cachedUserLibraries[source];
+
+    if (library == null) {
+      library = await UserLibrary.create(this, treeNode, source.sourceSpan);
+
+      _cachedUserLibraries[source] = library;
+
+      final id = new LibraryIdentifier.forUserLibrary(source.uri);
+
+      _libraries[id] = library;
+    }
+
+    return library;
+  }
+
+  LibraryEnvironment loadEnvironment(Library library) {
+    LibraryEnvironment environment = _cachedEnvironments[library];
+
+    if (environment == null) {
+      environment = _createEnvironment(library);
+
+      _cachedEnvironments[library] = environment;
+    }
+
+    return environment;
+  }
+
+  LibraryEnvironment _createEnvironment(Library library) {
+    final environment = new LibraryEnvironment();
+
+    // Only add implicit imports for user libraries
+    if (library is UserLibrary) {
+      // Add implicit imports
+      _addImplicitImports(environment);
+    }
+
+    // Load the library
+    library.run(this, environment);
+
+    // All set
+    return environment;
+  }
+
+  void _addImplicitImports(LibraryEnvironment environment) {
+    for (final String id in _implicitImports) {
+      // Get the built-in library
+      final BuiltInLibrary builtInLibrary = _builtInLibraries[id];
+
+      // Create an environment for the built-in library
+      final LibraryEnvironment builtInLibraryEnvironment = 
+        loadEnvironment(builtInLibrary);
+
+      // Define the built-in library with the default identifier
+      environment.libraryScope.define(
+        builtInLibrary.defaultImportIdentifier, 
+        builtInLibraryEnvironment
+      );
+    }
+  }
+}
