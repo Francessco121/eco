@@ -64,16 +64,16 @@ Assert.isTrue(a == 4, "Postfix decrement operator test #2 failed.");
 // // // // WHILE LOOP // // // //
 var counter = 0;
 while counter < 10 {
-	counter++;
+  counter++;
 }
-	
+  
 Assert.isTrue(counter == 10, "While loop test failed.");
 
 
 // // // // FOR LOOP // // // //
 var counter = 0;
 for var i = 0; i < 10; i++ {
-	counter = i + 1;
+  counter = i + 1;
 }
 
 Assert.isTrue(counter == 10, "For loop test failed.");
@@ -82,30 +82,30 @@ Assert.isTrue(counter == 10, "For loop test failed.");
 // // // // IF STATEMENT // // // //
 var selection;
 if true {
-	selection = "then";
+  selection = "then";
 }
-	
+  
 Assert.isTrue(selection == "then", "If statement then clause test failed.");
 
 var selection = null;
 if false {
-	selection = "then";
+  selection = "then";
 }
 
 Assert.isNull(selection, "If statement without else clause test failed.");
 
 if true {
-	selection = "then";
+  selection = "then";
 } else {
-	selection = "else";
+  selection = "else";
 }
-	
+  
 Assert.isTrue(selection == "then", "If-Else statement then clause test failed.");
 
 if false {
-	selection = "then";
+  selection = "then";
 } else {
-	selection = "else";
+  selection = "else";
 }
 
 Assert.isTrue(selection == "else", "If-Else statement else clause test failed.");
@@ -116,18 +116,18 @@ var scopeVar = 1;
 var scopeVar2 = 5;
 
 {
-	Assert.isTrue(scopeVar == 1, "Variable scope inheritance get test failed.");
-	
-	scopeVar = 2;
-	Assert.isTrue(scopeVar == 2, "Variable scope inheritance set test failed.");
-	
-	var scopeVar = 3;
-	Assert.isTrue(scopeVar == 3, "Variable hiding test failed.");
-	
-	var scopeVar2 = scopeVar2;
-	scopeVar2++;
-	
-	Assert.isTrue(scopeVar2 == 6, "Variable scope inheritance in initializer test failed.");
+  Assert.isTrue(scopeVar == 1, "Variable scope inheritance get test failed.");
+  
+  scopeVar = 2;
+  Assert.isTrue(scopeVar == 2, "Variable scope inheritance set test failed.");
+  
+  var scopeVar = 3;
+  Assert.isTrue(scopeVar == 3, "Variable hiding test failed.");
+  
+  var scopeVar2 = scopeVar2;
+  scopeVar2++;
+  
+  Assert.isTrue(scopeVar2 == 6, "Variable scope inheritance in initializer test failed.");
 }
 
 Assert.isTrue(scopeVar == 2, "Variable scope test #1 failed.");
@@ -138,8 +138,8 @@ Assert.isTrue(scopeVar2 == 5, "Variable scope test #2 failed.");
 var outer = 5;
 var i = 8;
 for var i = 0; i < 1; i++ {
-	Assert.isTrue(outer == 5, "For-loop scope inheritance test failed.");
-	Assert.isTrue(i == 0, "For-loop clause scope test failed.");
+  Assert.isTrue(outer == 5, "For-loop scope inheritance test failed.");
+  Assert.isTrue(i == 0, "For-loop clause scope test failed.");
 }
 
 Assert.isTrue(i == 8, "For-loop scope test failed.");
@@ -147,11 +147,11 @@ Assert.isTrue(i == 8, "For-loop scope test failed.");
 
 // // // // FUNCTIONS // // // //
 fn normalFunc() {
-	return "normal";
+  return "normal";
 }
 
 var anonFunc = fn() {
-	return "anon";
+  return "anon";
 };
 
 Assert.isTrue(normalFunc() == "normal", "Function declaration test failed.");
@@ -166,19 +166,19 @@ Assert.isTrue(array[1] == 3, "Array index[1] test failed.");
 
 // // // // MAPS // // // //
 var map = {
-	"key": true,
-	10 + 1: {
-		"inner": fn() { }
-	}
+  "key": true,
+  10 + 1: {
+    "inner": fn() { }
+  }
 };
 
 Assert.isTrue(map["key"] == true, "Map index['key'] test failed.");
 Assert.isNotNull(map[11]["inner"], "Map index[10]['inner'] test failed.");
 
 var programming = {
-	is: {
-		fun: true
-	}
+  is: {
+    fun: true
+  }
 };
 
 Assert.isTrue(programming.is.fun == true, "Map getter test failed.");
@@ -212,14 +212,14 @@ var map = { "key": "value" };
 
 var reverse = [];
 foreach i, value in array {
-	reverse[#array - i - 1] = value;
+  reverse[#array - i - 1] = value;
 }
 
 Assert.isTrue(reverse[0] == 3, "Foreach array test failed.");
 
 var reverse = {};
 foreach key, value in map {
-	reverse[value] = key;
+  reverse[value] = key;
 }
 
 Assert.isTrue(reverse["value"] == "key", "Foreach map test failed.");
@@ -229,11 +229,11 @@ Assert.isTrue(reverse["value"] == "key", "Foreach map test failed.");
 // For-loop
 var value;
 for var i = 0; i < 10; i++ {
-	if i == 5 {
-		break;
+  if i == 5 {
+    break;
   }
-		
-	value = i;
+    
+  value = i;
 }
 
 Assert.isTrue(value == 4, "For loop break test failed.");
@@ -241,11 +241,11 @@ Assert.isTrue(value == 4, "For loop break test failed.");
 // While-loop
 var i = 0;
 while i < 10 {
-	if i++ == 5 {
-		break;
+  if i++ == 5 {
+    break;
   }
-		
-	value = i;
+    
+  value = i;
 }
 
 Assert.isTrue(value == 5, "While loop break test failed.");
@@ -254,11 +254,11 @@ Assert.isTrue(value == 5, "While loop break test failed.");
 var value;
 var list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 foreach _, item in list {
-	if item == 5 {
-		break;
+  if item == 5 {
+    break;
   }
-	
-	value = item;
+  
+  value = item;
 }
 
 Assert.isTrue(value == 4, "Foreach loop break test failed.");
@@ -270,13 +270,13 @@ var list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 // For-loop
 var copy = [];
 for var i = 0; i < #list; i++ {
-	var value = list[i];
-	
-	if value == 5 {
-		continue;
+  var value = list[i];
+  
+  if value == 5 {
+    continue;
   }
-		
-	copy[i] = value;
+    
+  copy[i] = value;
 }
 
 Assert.isTrue(copy[5] == 6, "For loop continue test #1 failed.");
@@ -287,13 +287,13 @@ var copy = [];
 
 var i = 0;
 while i < #list {
-	var value = list[i++];
-	
-	if value == 5 {
-		continue;
+  var value = list[i++];
+  
+  if value == 5 {
+    continue;
   }
-		
-	copy[i - 1] = value;
+    
+  copy[i - 1] = value;
 }
 
 Assert.isTrue(copy[5] == 6, "While loop continue test #1 failed.");
@@ -303,11 +303,11 @@ Assert.isNull(copy[4], "While loop continue test #2 failed.");
 var copy = [];
 
 foreach i, value in list {
-	if value == 5 {
-		continue;
+  if value == 5 {
+    continue;
   }
-		
-	copy[i] = value;
+    
+  copy[i] = value;
 }
 
 Assert.isTrue(copy[5] == 6, "Foreach loop continue test #1 failed.");
@@ -344,24 +344,24 @@ var CARRIAGE_RETURN_CHAR = 13;
 
 var newlineChar1 = String.byte(str, 5);
 Assert.isTrue(newlineChar1 == NEWLINE_CHAR or newlineChar1 == CARRIAGE_RETURN_CHAR, 
-	"Multi-line string new-line character test #1 failed.");
+  "Multi-line string new-line character test #1 failed.");
 
 // Windows (\r\n) / Classic mac (\r)
 if newlineChar1 == CARRIAGE_RETURN_CHAR {
-	var newlineChar2 = String.byte(str, 6);
+  var newlineChar2 = String.byte(str, 6);
 
-	Assert.isTrue(newlineChar2 == NEWLINE_CHAR or newlineChar1 == "W", 
-		"Multi-line string new-line test #2 failed.");
+  Assert.isTrue(newlineChar2 == NEWLINE_CHAR or newlineChar1 == "W", 
+    "Multi-line string new-line test #2 failed.");
 }
 
 
 // // // // CLOSURES // // // //
 fn closureTest() {
-	var innerVar = "test";
-	
-	return fn() {
-		return innerVar;
-	};
+  var innerVar = "test";
+  
+  return fn() {
+    return innerVar;
+  };
 }
 
 Assert.isTrue(closureTest()() == "test", "Closure test failed.");
@@ -369,12 +369,12 @@ Assert.isTrue(closureTest()() == "test", "Closure test failed.");
 var i = 4;
 
 {
-	fn test() {
-		return i;
-	}
+  fn test() {
+    return i;
+  }
 
-	var i = 2;
-	Assert.isTrue(test() == 4, "Closure lexical scope test failed.");
+  var i = 2;
+  Assert.isTrue(test() == 4, "Closure lexical scope test failed.");
 }
 
 
