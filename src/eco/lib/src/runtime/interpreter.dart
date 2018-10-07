@@ -182,10 +182,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
         _checkNumberOperands(binary.$operator, left, right);
         return (left as double) * (right as double);
       case TokenType.bangEqual:
-        _checkNumberOperands(binary.$operator, left, right);
         return !_isEqual(left, right);
       case TokenType.equalEqual:
-        _checkNumberOperands(binary.$operator, left, right);
         return _isEqual(left, right);
       case TokenType.dotDot:
         if (left is String && right is String) {
@@ -436,7 +434,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
     if (conditionValue is bool) {
       if (conditionValue) {
         _execute($if.thenStatement);
-      } else {
+      } else if ($if.elseStatement != null) {
         _execute($if.elseStatement);
       }
     } else {
@@ -773,6 +771,6 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
       return;
     }
 
-    _error($operator, 'Operands must be a numbers.');
+    _error($operator, 'Operands must be numbers.');
   }
 }

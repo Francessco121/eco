@@ -374,7 +374,6 @@ var i = 4;
 	}
 
 	var i = 2;
-	var i = 2;
 	Assert.isTrue(test() == 4, "Closure lexical scope test failed.");
 }
 

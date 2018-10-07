@@ -16,8 +16,6 @@ class SystemLibrary extends BuiltInLibrary {
         if (options.systemPrintCallback != null) {
           options.systemPrintCallback(args[0]?.toString() ?? 'null');
         }
-
-        return null;
       },
       arity: 1,
       name: 'print'

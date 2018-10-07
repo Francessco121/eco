@@ -66,7 +66,8 @@ abstract class BuiltInLibrary implements Library {
   }
 
   /// Utility function to parse a boolean from function [args].
-  static bool parseBoolean(List<Object> args, int index, {
+  @protected
+  bool parseBoolean(List<Object> args, int index, {
     bool allowNull = false
   }) {
     final Object value = args[index];
@@ -84,7 +85,8 @@ abstract class BuiltInLibrary implements Library {
   }
 
   /// Utility function to parse a double from function [args].
-  static double parseDouble(List<Object> args, int index, {
+  @protected
+  double parseDouble(List<Object> args, int index, {
     bool allowNull = false
   }) {
     final Object value = args[index];
@@ -102,7 +104,8 @@ abstract class BuiltInLibrary implements Library {
   }
 
   /// Utility function to parse an integer from function [args].
-  static int parseInteger(List<Object> args, int index, {
+  @protected
+  int parseInteger(List<Object> args, int index, {
     bool allowNull = false
   }) {
     final Object value = args[index];
@@ -124,7 +127,8 @@ abstract class BuiltInLibrary implements Library {
   }
 
   /// Utility function to parse a string from function [args].
-  static String parseString(List<Object> args, int index, {
+  @protected
+  String parseString(List<Object> args, int index, {
     bool allowNull = false
   }) {
     final Object value = args[index];
@@ -141,7 +145,8 @@ abstract class BuiltInLibrary implements Library {
   }
 
   /// Utility function to parse a list from function [args].
-  static List<Object> parseList(List<Object> args, int index, {
+  @protected
+  List<Object> parseList(List<Object> args, int index, {
     bool allowNull = false
   }) {
     final Object value = args[index];
@@ -158,7 +163,8 @@ abstract class BuiltInLibrary implements Library {
   }
 
   /// Utility function to parse a map from function [args].
-  static Map<Object, Object> parseMap(List<Object> args, int index, {
+  @protected
+  Map<Object, Object> parseMap(List<Object> args, int index, {
     bool allowNull = false
   }) {
     final Object value = args[index];

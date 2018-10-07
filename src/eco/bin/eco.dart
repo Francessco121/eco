@@ -3,31 +3,42 @@ import 'dart:io' as io;
 
 import 'package:eco/eco.dart';
 
-void main(List<String> args) {
-  const String filePath = 'bin/test.eco';
+Future<int> main(List<String> args) async {
+  if (args.isEmpty) {
+    print('Usage: eco <file path>');
+    return 1;
+  }
 
-  _runFile(filePath);
+  final bool success = await _runFile(args[0]);
+
+  return success ? 0 : 1;
 }
 
-Future<void> _runFile(String filePath) async {
+Future<bool> _runFile(String filePath) async {
   // Open the file
   final file = new io.File(filePath);
   final String content = await file.readAsString();
 
-  await _runString(file.uri, content);
+  return await _runString(file.uri, content);
 }
 
-Future<void> _runString(Uri uri, String content) async {
+Future<bool> _runString(Uri uri, String content) async {
   final source = new Source(uri, content);
   final program = new Program();
 
   try {
     await program.run(source);
+
+    return true;
   } on ParseException catch (ex) {
     for (final error in ex.parseErrors) {
       print(error.sourceSpan.message(error.message));
     }
+
+    return false;
   } on RuntimeException catch (ex) {
     print(ex.sourceSpan.message(ex.message));
+
+    return false;
   }
 }

@@ -16,10 +16,8 @@ class Scope {
   /// [name] in this scope or any parent scope.
   Object get(Token name) {
     // Try our scope first
-    final Object value = _values[name.lexeme];
-
-    if (value != null) {
-      return value;
+    if (_values.containsKey(name.lexeme)) {
+      return _values[name.lexeme];
     }
 
     // Fallback to parent scope

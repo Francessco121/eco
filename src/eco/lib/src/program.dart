@@ -48,16 +48,22 @@ class Program {
   })
     : this.sourceResolver = sourceResolver ?? FileSourceResolver() {
 
-    _builtInLibrariesView = UnmodifiableMapView<String, BuiltInLibrary>(_builtInLibraries);
-    _implicitImportsView = UnmodifiableListView<String>(_implicitImports);
+    _builtInLibrariesView = UnmodifiableMapView(_builtInLibraries);
+    _implicitImportsView = UnmodifiableListView(_implicitImports);
+    _librariesView = UnmodifiableMapView(_libraries);
 
     // Add standard library
     standardLibraryOptions ??= new StandardLibraryOptions(
       systemPrintCallback: print
     );
 
+    // Implicit standard libraries
     addLibrary(new SystemLibrary(standardLibraryOptions), importImplicitly: true);
+    addLibrary(new StringLibrary(), importImplicitly: true);
     addLibrary(new ObjectLibrary(), importImplicitly: true);
+
+    // Other standard libraries
+    addLibrary(new AssertLibrary());
   }
 
   /// Makes the built-in [library] available to this program.
