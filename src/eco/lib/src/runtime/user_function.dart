@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 
 import '../ast/ast.dart';
-import '../token.dart';
+import '../parsing/token.dart';
 import 'callable.dart';
 import 'interpreter.dart';
 import 'return_exception.dart';

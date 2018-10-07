@@ -5,12 +5,12 @@ import 'package:meta/meta.dart';
 
 import '../ast/ast.dart';
 import '../library_identifier.dart';
-import '../parse_error.dart';
 import '../program.dart';
 import '../source.dart';
 import '../source_tree.dart';
-import '../token.dart';
 import '../user_library.dart';
+import 'parse_error.dart';
+import 'token.dart';
 
 Future<ResolveResult> resolve(
   Program program, 

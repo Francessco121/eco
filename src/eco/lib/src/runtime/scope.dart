@@ -1,5 +1,5 @@
-import '../runtime_exception.dart';
-import '../token.dart';
+import '../parsing/token.dart';
+import 'runtime_exception.dart';
 
 class Scope {
   final Scope parent;

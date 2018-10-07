@@ -5,14 +5,14 @@ import 'package:meta/meta.dart';
 import 'package:source_span/source_span.dart';
 
 import 'ast/ast.dart';
-import 'functions/parse.dart';
-import 'functions/resolve.dart';
-import 'functions/scan.dart';
+import 'parsing/parse_error.dart';
+import 'parsing/parse.dart';
+import 'parsing/resolve.dart';
+import 'parsing/scan.dart';
 import 'runtime/interpreter.dart';
 import 'runtime/library_environment.dart';
 import 'library.dart';
 import 'library_identifier.dart';
-import 'parse_error.dart';
 import 'program.dart';
 import 'source_tree.dart';
 

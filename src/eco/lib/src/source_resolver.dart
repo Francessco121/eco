@@ -6,8 +6,8 @@ import 'package:path/path.dart' as $path;
 import 'source.dart';
 
 abstract class SourceResolver {
-  FutureOr<Uri> resolvePath(String path, [Uri relativeTo]);
-  FutureOr<Source> load(Uri uri);
+  Uri resolvePath(String path, [Uri relativeTo]);
+  Future<Source> load(Uri uri);
 }
 
 class FileSourceResolver implements SourceResolver {

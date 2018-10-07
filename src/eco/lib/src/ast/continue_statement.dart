@@ -1,4 +1,4 @@
-import '../token.dart';
+import '../parsing/token.dart';
 import 'statement.dart';
 import 'statement_visitor.dart';
 

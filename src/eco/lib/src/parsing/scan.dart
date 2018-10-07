@@ -5,9 +5,9 @@ import 'package:meta/meta.dart';
 import 'package:source_span/source_span.dart';
 import 'package:string_scanner/string_scanner.dart';
 
-import '../parse_error.dart';
-import '../token.dart';
-import '../token_type.dart';
+import 'parse_error.dart';
+import 'token.dart';
+import 'token_type.dart';
 
 /// A map of literal keywords to their respected [TokenType].
 const Map<String, TokenType> _keywords = {

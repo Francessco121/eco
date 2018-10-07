@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'parsing/parse_exception.dart';
 import 'runtime/standard_library/standard_library.dart';
 import 'runtime/built_in_library.dart';
 import 'runtime/library_environment.dart';
-import 'compilation_exception.dart';
 import 'library.dart';
 import 'library_identifier.dart';
 import 'source.dart';
@@ -90,7 +90,7 @@ class Program {
     _cachedUserLibraries[source] = library;
 
     if (library.parseErrors.isNotEmpty) {
-      throw CompilationException(library.parseErrors);
+      throw ParseException(library.parseErrors);
     }
 
     // Create an environment for the library if one

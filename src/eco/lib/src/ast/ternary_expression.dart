@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-import '../token.dart';
+import '../parsing/token.dart';
 import 'expression.dart';
 import 'expression_visitor.dart';
 

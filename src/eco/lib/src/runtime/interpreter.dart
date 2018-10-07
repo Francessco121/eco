@@ -1,13 +1,13 @@
 import 'package:meta/meta.dart';
 
 import '../ast/ast.dart';
+import '../parsing/token.dart';
+import '../parsing/token_type.dart';
 import '../library.dart';
 import '../library_identifier.dart';
 import '../program.dart';
-import '../runtime_exception.dart';
-import '../token.dart';
-import '../token_type.dart';
 import '../user_library.dart';
+import 'runtime_exception.dart';
 import 'built_in_function_exception.dart';
 import 'callable.dart';
 import 'library_environment.dart';

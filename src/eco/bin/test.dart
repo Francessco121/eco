@@ -23,7 +23,7 @@ Future<void> _runString(Uri uri, String content) async {
 
   try {
     await program.run(source);
-  } on CompilationException catch (ex) {
+  } on ParseException catch (ex) {
     for (final error in ex.parseErrors) {
       print(error.sourceSpan.message(error.message));
     }

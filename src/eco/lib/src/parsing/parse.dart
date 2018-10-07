@@ -3,9 +3,9 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 
 import '../ast/ast.dart';
-import '../parse_error.dart';
-import '../token.dart';
-import '../token_type.dart';
+import 'parse_error.dart';
+import 'token.dart';
+import 'token_type.dart';
 
 /// Parses a list of Eco [tokens] into a list of [Statement]s.
 ParseResult parse(List<Token> tokens) {
