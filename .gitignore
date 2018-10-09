@@ -4,3 +4,6 @@
 
 # Local Pub files
 .packages
+
+# Dart build cache
+.dart_tool/

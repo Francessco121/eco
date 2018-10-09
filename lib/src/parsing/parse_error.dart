@@ -7,4 +7,7 @@ class ParseError {
   final String message;
 
   const ParseError(this.sourceSpan, this.message);
+
+  @override
+  String toString() => sourceSpan.message(message);
 }

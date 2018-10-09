@@ -31,13 +31,11 @@ Future<bool> _runString(Uri uri, String content) async {
 
     return true;
   } on ParseException catch (ex) {
-    for (final error in ex.parseErrors) {
-      print(error.sourceSpan.message(error.message));
-    }
+    print(ex);
 
     return false;
   } on RuntimeException catch (ex) {
-    print(ex.sourceSpan.message(ex.message));
+    print(ex);
 
     return false;
   }

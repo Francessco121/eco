@@ -6,4 +6,8 @@ class RuntimeException implements Exception {
   final String message;
 
   RuntimeException(this.sourceSpan, this.message);
+
+  @override
+  String toString() => 
+    'RuntimeException: ' + sourceSpan.message(message);
 }
