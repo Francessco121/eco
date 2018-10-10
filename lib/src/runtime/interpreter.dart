@@ -259,8 +259,13 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
           final Expression argument = call.arguments[i];
           argValue = _evaluate(argument);
         } else {
-          // Default missing arguments to their default value or null
-          argValue = parameter.defaultValue ?? RuntimeValue.fromNull();
+          if (parameter.defaultValue != null) {
+            argValue = parameter.defaultValue;
+          } else {
+            _error(call.openParen, 
+              "Missing argument for required parameter '${parameter.name}'."
+            );
+          }
         }
         
         mappedArguments[parameter.name] = argValue;
