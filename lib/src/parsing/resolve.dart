@@ -161,6 +161,7 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
 
   bool _inFunction = false;
   bool _inLoop = false;
+  bool _inTagContext = false;
 
   final List<Map<String, bool>> _scopes = [];
 
@@ -300,6 +301,13 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   }
 
   @override
+  void visitHtml(HtmlExpression html) {
+    _tagContext(() {
+      _resolveStatements(html.body);
+    });
+  }
+
+  @override
   void visitIf(IfStatement $if) {
     _resolveExpression($if.condition);
     _resolveStatement($if.thenStatement);
@@ -356,6 +364,17 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   }
 
   @override
+  void visitTag(TagStatement tag) {
+    if (!_inTagContext) {
+      _addError(tag.keyword, 'Cannot use tags outside of tag context.');
+    }
+
+    if (tag.body != null) {
+      _resolveStatements(tag.body);
+    }
+  }
+
+  @override
   void visitTernary(TernaryExpression ternary) {
     _resolveExpression(ternary.condition);
     _resolveExpression(ternary.thenExpression);
@@ -400,6 +419,15 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
     });
   }
 
+  @override
+  void visitWrite(WriteStatement write) {
+    if (!_inTagContext) {
+      _addError(write.keyword, 'Cannot use write outside of tag context.');
+    }
+
+    _resolveExpression(write.expression);
+  }
+
   void _blockScope(Function callback) {
     _beginScope();
 
@@ -423,7 +451,10 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
 
   void _functionScope(Function callback) {
     bool prevInFunction = _inFunction;
+    bool prevInTagContext = _inTagContext;
+
     _inFunction = true;
+    _inTagContext = false;
 
     _beginScope();
 
@@ -432,6 +463,23 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
     _endScope();
 
     _inFunction = prevInFunction;
+    _inTagContext = prevInTagContext;
+  }
+
+  void _tagContext(Function callback) {
+    bool prevInLoop = _inLoop;
+    bool prevInFunction = _inFunction;
+    bool prevInTagContext = _inTagContext;
+
+    _inLoop = false;
+    _inFunction = false;
+    _inTagContext = true;
+
+    callback();
+
+    _inLoop = prevInLoop;
+    _inFunction = prevInFunction;
+    _inTagContext = prevInTagContext;
   }
 
   void _resolveExpression(Expression expression) {

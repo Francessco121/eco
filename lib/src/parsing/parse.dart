@@ -168,6 +168,8 @@ class _Parser {
       case TokenType.$if: return _if();
       case TokenType.$return: return _return();
       case TokenType.$while: return _while();
+      case TokenType.write: return _write();
+      case TokenType.tag: return _tag();
       default:
         return _expressionStatement();
     }
@@ -360,6 +362,81 @@ class _Parser {
     _consume(TokenType.semicolon, "Expected ';' after expression.");
 
     return ExpressionStatement(expression);
+  }
+
+  WriteStatement _write() {
+    // Consume 'write'
+    final Token keyword = _advance();
+
+    // Parse expression
+    final Expression expression = _expression();
+
+    // Consume ';'
+    _consume(TokenType.semicolon, "Expected ';' after write expression.");
+
+    return WriteStatement(keyword, expression);
+  }
+
+  TagStatement _tag() {
+    // Consume 'tag'
+    final Token keyword = _advance();
+
+    // Parse tag name
+    final Token tagName = _consume(TokenType.string, 
+      "Expected tag name as a string after 'tag'."
+    );
+
+    // Parse optional 'with' clause
+    WithClause withClause = null;
+    if (_check(TokenType.$with)) {
+      withClause = _withClause();
+    }
+
+    // Parse optional body
+    List<Statement> body = null;
+    if (_match(TokenType.leftBrace)) {
+      body = [];
+
+      while (!_match(TokenType.rightBrace)) {
+        body.add(_declaration());
+      }
+    } else {
+      // Consume ';'
+      _consume(TokenType.semicolon, "Expected ';' to end tag statement.");
+    }
+
+    return TagStatement(keyword, tagName, withClause, body);
+  }
+
+  WithClause _withClause() {
+    // Consume 'with'
+    final Token keyword = _advance();
+
+    // Parse attributes
+    List<Attribute> attributes = [];
+    attributes.add(_attribute());
+
+    while (_match(TokenType.comma)) {
+      attributes.add(_attribute());
+    }
+
+    return WithClause(keyword, attributes);
+  }
+
+  Attribute _attribute() {
+    // Parse the attribute name
+    final Token name = _consumeAny(
+      const [TokenType.identifier, TokenType.string],
+      'Expected an attribute name as an identifier or string.'
+    );
+
+    // Consume ':'
+    _consume(TokenType.colon, "Expected ':' to begin attribute value.");
+
+    // Parse attribute value
+    final Expression expression = _expression();
+
+    return Attribute(name, expression);
   }
 
   Expression _expression() {
@@ -648,6 +725,28 @@ class _Parser {
       return ArrayExpression(values);
     }
     
+    return _html();
+  }
+
+  Expression _html() {
+    if (_check(TokenType.html)) {
+      // Consume 'html'
+      final Token keyword = _advance();
+
+      // Consume '{'
+      _consume(TokenType.leftBrace, 
+        "Expected '{' to begin html body."
+      );
+
+      // Parse body
+      List<Statement> body = [];
+      while (!_match(TokenType.rightBrace)) {
+        body.add(_declaration());
+      }
+
+      return HtmlExpression(keyword, body);
+    }
+
     return _access();
   }
 
@@ -830,12 +929,25 @@ class _Parser {
   }
 
   /// Consumes the current token if it is of the given [type]
-  /// and returns the next token.
+  /// and returns the token.
   /// 
   /// Otherwise, throws a [_ParseException] and adds an error
   /// with the given [errorMessage].
   Token _consume(TokenType type, String errorMessage) {
     if (_check(type)) {
+      return _advance();
+    }
+
+    throw _error(_peek(), errorMessage);
+  }
+
+  /// Consumes the current token if it is of any of the given [types]
+  /// and returns the token.
+  /// 
+  /// Otherwise, throws a [_ParseException] and adds an error
+  /// with the given [errorMessage].
+  Token _consumeAny(List<TokenType> types, String errorMessage) {
+    if (_checkAny(types)) {
       return _advance();
     }
 

@@ -10,7 +10,7 @@ function_decl    -> "pub"? "fn" IDENTIFIER "(" parameters? ")" block_stmt ;
 var_decl         -> "pub"? "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement        -> block_stmt | break_stmt | continue_stmt | expr_stmt | for_stmt | foreach_stmt 
-                  | if_stmt | return_stmt | while_stmt ;
+                  | if_stmt | return_stmt | while_stmt | write_stmt | tag_stmt ;
 
 block_stmt       -> "{" declaration* "}" ;
 break_stmt       -> "break" ";" ;
@@ -22,6 +22,11 @@ foreach_stmt     -> "foreach" "(" "var" IDENTIFIER ( "," IDENTIFIER )? "in" expr
 if_stmt          -> "if" "(" expression ")" statement ( "else" statement )? ;
 return_stmt      -> "return" expression? ";" ;
 while_stmt       -> "while" "(" expression ")" statement ;
+
+write_stmt       -> "write" expression ";" ;
+tag_stmt         -> "tag" STRING with_clause? ( ";" | "{" declaration* "}" ) ;
+with_clause      -> "with" attribute ( "," attribute )* ;
+attribute        -> ( IDENTIFIER | STRING ) ":" expression ;
 
 expression       -> assignment ;
 
@@ -55,6 +60,9 @@ map              -> "{" ( key_value_pair ( "," key_value_pair )* )? "}"
 key_value_pair   -> expression ":" expression ;
 
 array            -> "[" ( expression ( "," expression )* )? "]" 
+                  | html ;
+
+html             -> "html" "{" declaration* "}" ;
                   | access ;
 
 access           -> primary ( get | index | call )* ;

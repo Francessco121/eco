@@ -54,6 +54,10 @@ enum TokenType {
   $true,
   $false,
   public,
+  html,
+  tag,
+  $with,
+  write,
 
   // End-of-file
   eof

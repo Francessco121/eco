@@ -29,7 +29,11 @@ const Map<String, TokenType> _keywords = {
   'null': TokenType.$null,
   'true': TokenType.$true,
   'false': TokenType.$false,
-  'pub': TokenType.public
+  'pub': TokenType.public,
+  'html': TokenType.html,
+  'tag': TokenType.tag,
+  'with': TokenType.$with,
+  'write': TokenType.write
 };
 
 /// Scans the Eco [source] into a list of [Token]s.

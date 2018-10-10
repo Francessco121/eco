@@ -8,8 +8,10 @@ import 'function_statement.dart';
 import 'if_statement.dart';
 import 'import_statement.dart';
 import 'return_statement.dart';
+import 'tag_statement.dart';
 import 'variable_statement.dart';
 import 'while_statement.dart';
+import 'write_statement.dart';
 
 abstract class StatementVisitor {
   void visitBlock(BlockStatement block);
@@ -22,6 +24,8 @@ abstract class StatementVisitor {
   void visitIf(IfStatement $if);
   void visitImport(ImportStatement $import);
   void visitReturn(ReturnStatement $return);
+  void visitTag(TagStatement tag);
   void visitVariableStatement(VariableStatement variableStatement);
   void visitWhile(WhileStatement $while);
+  void visitWrite(WriteStatement write);
 }

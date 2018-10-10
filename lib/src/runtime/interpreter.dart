@@ -48,6 +48,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
   Scope _currentScope;
 
+  StringBuffer _currentTagBuffer;
+
   final Program _program;
 
   _InterpreterBase(this._program, this.library, this.environment);
@@ -237,6 +239,11 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
   @override
   RuntimeValue visitCall(CallExpression call) {
+    // Store the previous tag buffer and set the current to null
+    // since making a call leaves tag context
+    final StringBuffer previousTagBuffer = _currentTagBuffer;
+    _currentTagBuffer = null;
+
     // Evaluate the target
     final RuntimeValue callee = _evaluate(call.callee);
 
@@ -285,7 +292,12 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
       // Run the callable
       try {
-        return callable.call(this, mappedArguments);
+        final RuntimeValue callableResult = callable.call(this, mappedArguments);
+
+        // Restore tag buffer
+        _currentTagBuffer = previousTagBuffer;
+
+        return callableResult;
       } on BuiltInFunctionException catch (ex) {
         // Convert built-in function exceptions
         _error(call.openParen, ex.message);
@@ -473,6 +485,29 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   }
 
   @override
+  RuntimeValue visitHtml(HtmlExpression html) {
+    // Store the previous tag buffer so we can restore it later
+    final StringBuffer previousTagBuffer = _currentTagBuffer;
+
+    // Create a new tag buffer
+    _currentTagBuffer = new StringBuffer();
+
+    // Run the html expression body
+    for (final Statement statement in html.body) {
+      _execute(statement);
+    }
+
+    // Create the final html string
+    final String htmlString = _currentTagBuffer.toString();
+
+    // Restore the previous tag buffer
+    _currentTagBuffer = previousTagBuffer;
+
+    // All set!
+    return RuntimeValue.fromString(htmlString);
+  }
+
+  @override
   void visitIf(IfStatement $if) {
     final RuntimeValue conditionValue = _evaluate($if.condition);
 
@@ -616,6 +651,69 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   }
 
   @override
+  void visitTag(TagStatement tag) {
+    // Write the opening tag
+    _currentTagBuffer.write('<');
+    _currentTagBuffer.write(tag.name.literal);
+
+    // Write the attributes
+    if (tag.withClause != null) {
+      for (final Attribute attribute in tag.withClause.attributes) {
+        final RuntimeValue attributeValue = _evaluate(attribute.expression);
+
+        if (attributeValue.type == RuntimeValueType.$null) {
+          // Skip this attribute if the value is null
+          continue;
+        }
+
+        if (attributeValue.type == RuntimeValueType.boolean) {
+          if (!attributeValue.boolean) {
+            // Skip this attribute if the value is false
+            continue;
+          }
+        }
+
+        _currentTagBuffer.write(' ');
+
+        // Use the literal if the attribute name is a string
+        if (attribute.name.type == TokenType.string) {
+          _currentTagBuffer.write(attribute.name.literal);
+        } else {
+          _currentTagBuffer.write(attribute.name.lexeme);
+        }
+
+        // Only write the attribute value if the value is a string
+        if (attributeValue.type == RuntimeValueType.string) {
+          _currentTagBuffer.write('="');
+          _currentTagBuffer.write(attributeValue.string);
+          _currentTagBuffer.write('"');
+        } else if (attributeValue.type != RuntimeValueType.boolean) {
+          _error(attribute.name, 'Attribute value must evaluate to null, a boolean, or a string.');
+        }
+      }
+    }
+
+    // Run the optional tag body
+    if (tag.body != null) {
+      // Write the end of the opening tag
+      _currentTagBuffer.writeln('>');
+
+      for (final Statement statement in tag.body) {
+        _execute(statement);
+      }
+
+      // Write the closing tag
+      _currentTagBuffer.writeln();
+      _currentTagBuffer.write('</');
+      _currentTagBuffer.write(tag.name.literal);
+      _currentTagBuffer.writeln('>');
+    } else {
+      // Write the end of the opening tag
+      _currentTagBuffer.writeln(' />');
+    }
+  }
+
+  @override
   RuntimeValue visitTernary(TernaryExpression ternary) {
     final RuntimeValue value = _evaluate(ternary.condition);
 
@@ -739,6 +837,13 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     } on _Break {
       // Loop ended early by a break statement
     }
+  }
+
+  @override
+  void visitWrite(WriteStatement write) {
+    final RuntimeValue value = _evaluate(write.expression);
+
+    _currentTagBuffer.write(value.toString());
   }
 
   FunctionParameter _convertParameter(Parameter parameter) {

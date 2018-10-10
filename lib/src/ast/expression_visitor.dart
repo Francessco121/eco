@@ -5,6 +5,7 @@ import 'call_expression.dart';
 import 'function_expression.dart';
 import 'get_expression.dart';
 import 'grouping_expression.dart';
+import 'html_expression.dart';
 import 'index_expression.dart';
 import 'literal_expression.dart';
 import 'logical_expression.dart';
@@ -21,6 +22,7 @@ abstract class ExpressionVisitor<T> {
   T visitFunctionExpression(FunctionExpression functionExpression);
   T visitGet(GetExpression $get);
   T visitGrouping(GroupingExpression grouping);
+  T visitHtml(HtmlExpression html);
   T visitIndex(IndexExpression index);
   T visitLiteral(LiteralExpression literal);
   T visitLogical(LogicalExpression logical);
