@@ -311,6 +311,10 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
 
   @override
   void visitImport(ImportStatement $import) {
+    if (_scopes.isNotEmpty) {
+      _addError($import.keyword, 'Imports can only be specified at the top-level scope.');
+    }
+
     imports.add($import);
 
     _declare($import.asIdentifier);
@@ -342,6 +346,10 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
 
   @override
   void visitReturn(ReturnStatement $return) {
+    if (!_inFunction) {
+      _addError($return.keyword, 'Cannot return outside of a function.');
+    }
+
     if ($return.expression != null) {
       _resolveExpression($return.expression);
     }
