@@ -6,7 +6,7 @@ System.print(html {
       }
 
       tag 'li' {
-        write Object.toString(i);
+        write i;
       }
     }
   }

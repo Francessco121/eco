@@ -97,9 +97,17 @@ class RuntimeValue {
       case RuntimeValueType.library: return _library.toString();
       case RuntimeValueType.list: return 'list';
       case RuntimeValueType.map: return 'map';
-      case RuntimeValueType.number: return _number.toString();
+      case RuntimeValueType.number: return _numberToString(_number);
       case RuntimeValueType.string: return _string;
       default: throw UnimplementedError();
+    }
+  }
+
+  String _numberToString(double number) {
+    if (number.truncate() == number) {
+      return number.toInt().toString();
+    } else {
+      return number.toString();
     }
   }
 }
