@@ -39,7 +39,7 @@ class ViewCompilerInternal implements ViewCompiler {
     final LibraryEnvironment result = await program.run(viewSource);
     final View view = _views[result.library];
 
-    if (view != null && view.contentCallback != null) {
+    if (view != null) {
       // Find the root view
       //
       // We must build the view from the ground up, rather than
@@ -51,16 +51,19 @@ class ViewCompilerInternal implements ViewCompiler {
 
       // Build the view
       final Callable contentCallback = finalView.contentCallback;
-      final RuntimeValue viewResult = contentCallback.call(
-        CallContext(result.library, result), 
-        {}
-      );
 
-      return viewResult.toString();
-    } else {
-      // No view was created...
-      return '';
+      if (contentCallback != null) {
+        final RuntimeValue viewResult = contentCallback.call(
+          CallContext(result.library, result), 
+          {}
+        );
+
+        return viewResult.toString();
+      }
     }
+    
+    // No view was created...
+    return '';
   }
 
   /// Gets an existing or creates a view for the given [library].

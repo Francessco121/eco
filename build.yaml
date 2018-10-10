@@ -1,0 +1,9 @@
+builders:
+  eco:
+    import: "package:eco/builder.dart"
+    builder_factories:
+      - "viewBuilder"
+    build_extensions:
+      .view.eco:
+        - .html
+    auto_apply: dependents
