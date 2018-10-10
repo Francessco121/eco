@@ -128,6 +128,7 @@ class _Scanner {
       case $question: _addToken(TokenType.question); break;
       case $asterisk: _addToken(TokenType.star); break;
       case $hash: _addToken(TokenType.hash); break;
+      case $percent: _addToken(TokenType.percent); break;
       case $dot: _addToken(_match($dot) ? TokenType.dotDot : TokenType.dot); break;
       case $equal: _addToken(_match($equal) ? TokenType.equalEqual : TokenType.equal); break;
       case $exclamation: _addToken(_match($equal) ? TokenType.bangEqual : TokenType.bang); break;

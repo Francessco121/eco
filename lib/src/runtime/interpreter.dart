@@ -184,6 +184,9 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
       case TokenType.star:
         _checkNumberOperands(binary.$operator, left, right);
         return RuntimeValue.fromNumber(left.number * right.number);
+      case TokenType.percent:
+        _checkNumberOperands(binary.$operator, left, right);
+        return RuntimeValue.fromNumber(left.number % right.number);
       case TokenType.bangEqual:
         return RuntimeValue.fromBoolean(left != right);
       case TokenType.equalEqual:

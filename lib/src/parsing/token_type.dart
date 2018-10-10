@@ -27,6 +27,7 @@ enum TokenType {
   forwardSlash,
   star,
   hash,
+  percent,
 
   // Literals
   identifier,

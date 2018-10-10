@@ -501,7 +501,7 @@ class _Parser {
   Expression _multiplication() {
     Expression expression = _unary();
 
-    while (_checkAny(const [TokenType.star, TokenType.forwardSlash])) {
+    while (_checkAny(const [TokenType.star, TokenType.forwardSlash, TokenType.percent])) {
       final Token $operator = _advance();
       final Expression right = _unary();
 

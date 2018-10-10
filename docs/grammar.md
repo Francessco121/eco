@@ -38,7 +38,7 @@ logic_and        -> equality ( "and" equality )* ;
 equality         -> comparison ( ( "==" | "!=" ) comparison )* ;
 comparison       -> addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
 addition         -> multiplication ( ( "-" | "+" ) multiplication )* ;
-multiplication   -> unary ( ( "/" | "*" ) unary )* ;
+multiplication   -> unary ( ( "/" | "*" | "%" ) unary )* ;
 
 unary            -> ( ( "!" | "-" | "#" ) unary ) 
                   | ( value ( "++" | "--" )* ) ;
