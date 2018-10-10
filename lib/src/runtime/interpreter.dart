@@ -279,7 +279,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
       // Run the callable
       try {
-        final RuntimeValue callableResult = callable.call(this, mappedArguments);
+        final RuntimeValue callableResult = callable.call(mappedArguments);
 
         // Restore tag buffer
         _currentTagBuffer = previousTagBuffer;
@@ -426,7 +426,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
           .toList(),
         body: functionExpression.body,
         closure: _currentScope,
-        name: null // Anonymous functions don't have names
+        name: null, // Anonymous functions don't have names,
+        interpreter: this
       )
     );
   }
@@ -439,7 +440,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
         .toList(),
       body: functionStatement.body,
       closure: _currentScope,
-      name: functionStatement.name.lexeme
+      name: functionStatement.name.lexeme,
+      interpreter: this
     );
 
     final Scope scope = functionStatement.publicKeyword != null

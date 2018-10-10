@@ -31,7 +31,7 @@ class BuiltInFunction implements Callable {
   }
 
   @override
-  RuntimeValue call(_, Map<String, RuntimeValue> arguments) {
+  RuntimeValue call(Map<String, RuntimeValue> arguments) {
     return _callback(arguments);
   }
 
