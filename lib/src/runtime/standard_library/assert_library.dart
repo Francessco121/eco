@@ -47,6 +47,27 @@ class AssertLibrary extends BuiltInLibrary {
       name: 'isFalse'
     ));
 
+    // areEqual
+    defineFunction(BuiltInFunction(
+      (args) {
+        final RuntimeValue expected = args['expected'];
+        final RuntimeValue actual = args['actual'];
+        final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
+
+        if (expected != actual) {
+          throw BuiltInFunctionException(errorMessage ?? 
+            "Assert failed. Expected '$expected' but got '$actual'."
+          );
+        }
+      },
+      parameters: [
+        FunctionParameter('expected'),
+        FunctionParameter('actual'),
+        FunctionParameter('errorMessage', defaultValue: RuntimeValue.fromNull())
+      ],
+      name: 'areEqual'
+    ));
+
     // isNull
     defineFunction(BuiltInFunction(
       (args) {

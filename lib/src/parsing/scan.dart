@@ -156,6 +156,9 @@ class _Scanner {
       case $single_quote:
         _string(doubleQuote: false);
         break;
+      case $grave:
+        _htmlString();
+        break;
       case $space:
       case $tab:
         // Visible whitespace
@@ -367,6 +370,67 @@ class _Scanner {
 
       // Save the last char so we can handle escape sequences
       lastChar = char;
+    }
+
+    // Check if it's an unterminated string
+    if (_isAtEnd()) {
+      _addError('Unterminated string.');
+      return;
+    }
+
+    // Consume the closing quote
+    _advance();
+    _currentOffset++;
+    _currentColumn++;
+
+    // Build the lexeme
+    final String lexeme = _lexemeBuffer.toString();
+
+    // Build the literal
+    final String literal = literalBuffer.toString();
+    
+    // Create start and end source locations
+    final SourceSpan span = _createSourceSpanForCurrent(lexeme);
+
+    // Manually add the token
+    _tokens.add(Token(
+      type: TokenType.string,
+      literal: literal,
+      sourceSpan: span
+    ));
+  }
+
+  void _htmlString() {
+    // Note: We manually increment positions here because strings can be multiline,
+    // and [_addToken] does not handle newlines.
+
+    // Handle the starting quote
+    _currentOffset++;
+    _currentColumn++;
+
+    // Read until end of string or EOF
+    final literalBuffer = new StringBuffer();
+
+    while (!_isAtEnd()) {
+      if (_peek() == $grave) {
+        // String ended with a grave 
+        break;
+      }
+
+      // Update source offsets
+      _currentOffset++;
+
+      if (_peek() == $lf) {
+        _currentLine++;
+        _currentColumn = 0;
+      } else {
+        _currentColumn++;
+      }
+
+      // Read the next char
+      final int char = _advance();
+
+      literalBuffer.writeCharCode(char);
     }
 
     // Check if it's an unterminated string
