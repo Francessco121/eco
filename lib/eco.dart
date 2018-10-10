@@ -12,8 +12,11 @@ export 'src/runtime/built_in_function.dart';
 export 'src/runtime/built_in_function_exception.dart';
 export 'src/runtime/built_in_library.dart';
 export 'src/runtime/callable.dart';
+export 'src/runtime/function_parameter.dart';
 export 'src/runtime/library_environment.dart';
 export 'src/runtime/runtime_exception.dart';
+export 'src/runtime/runtime_value.dart';
+export 'src/runtime/runtime_value_type.dart';
 export 'src/runtime/scope.dart';
 
 // Common
