@@ -576,11 +576,9 @@ class _Parser {
     while (_check(TokenType.identifier)) {
       final Token identifier = _advance();
 
-      Token equalSign = null;
       Expression defaultValue = null;
 
-      if (_check(TokenType.equal)) {
-        equalSign = _advance();
+      if (_match(TokenType.equal)) {
         defaultValue = _value();
 
         // After the first optional parameter, the remaining
@@ -592,7 +590,7 @@ class _Parser {
         );
       }
 
-      params.add(Parameter(identifier, equalSign, defaultValue));
+      params.add(Parameter(identifier, defaultValue));
 
       if (!_match(TokenType.comma)) {
         break;
@@ -705,7 +703,7 @@ class _Parser {
     final Token leftParen = _advance();
 
     // Parse arguments
-    final List<Expression> arguments = _arguments();
+    final Arguments arguments = _arguments();
 
     _consume(TokenType.rightParen,
       "Expected ')' after call arguments."
@@ -714,18 +712,59 @@ class _Parser {
     return CallExpression(target, arguments, leftParen);
   }
 
-  List<Expression> _arguments() {
-    final List<Expression> args = [];
+  Arguments _arguments() {
+    final List<Expression> positional = [];
+    final Map<Token, Expression> named = {};
+
+    Token lastComma;
+    bool namedOnly = false;
 
     while (!_check(TokenType.rightParen)) {
-      args.add(_expression());
+      Token parameterName;
+      Expression expression;
 
-      if (!_match(TokenType.comma)) {
+      // Check if this is a named argument
+      if (_check(TokenType.identifier) && _peekNext().type == TokenType.colon) {
+        parameterName = _advance();
+
+        // Consume ':'
+        _advance();
+
+        expression = _expression();
+
+        // After the first named parameter, the remaining
+        // arguments must name their parameters.
+        namedOnly = true;
+      } else {
+        expression = _expression();
+      }
+
+      // Ensure named arguments are last
+      if (parameterName == null && namedOnly) {
+        throw _error(lastComma, 
+          'Named arguments must be after all positional arguments.'
+        );
+      }
+
+      // Add the argument
+      if (parameterName == null) {
+        positional.add(expression);
+      } else {
+        named[parameterName] = expression;
+      }
+
+      // Comma indicates another argument
+      if (_check(TokenType.comma)) {
+        lastComma = _advance();
+      } else {
         break;
       }
     }
 
-    return args;
+    return Arguments(
+      UnmodifiableListView(positional),
+      UnmodifiableMapView(named)
+    );
   }
 
   Expression _primary() {
@@ -838,6 +877,15 @@ class _Parser {
   /// Returns the current token.
   Token _peek() {
     return _tokens[_current];
+  }
+
+  // Returns the next token.
+  Token _peekNext() {
+    if (_isAtEnd()) {
+      return _peek();
+    } else {
+      return _tokens[_current + 1];
+    }
   }
 
   Token _previous() {

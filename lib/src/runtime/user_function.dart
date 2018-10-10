@@ -4,25 +4,25 @@ import 'package:meta/meta.dart';
 
 import '../ast/ast.dart';
 import 'callable.dart';
+import 'function_parameter.dart';
 import 'interpreter.dart';
 import 'return_exception.dart';
-import 'runtime_parameter.dart';
 import 'runtime_value.dart';
 import 'scope.dart';
 
 /// A user-defined function in Eco code.
 class UserFunction implements Callable {
   @override
-  UnmodifiableListView<RuntimeParameter> get parameters => _parametersView;
+  UnmodifiableListView<FunctionParameter> get parameters => _parametersView;
 
-  UnmodifiableListView<RuntimeParameter> _parametersView;
+  UnmodifiableListView<FunctionParameter> _parametersView;
 
   final List<Statement> _body;
   final Scope _closure;
   final String _name;
 
   UserFunction({
-    @required List<RuntimeParameter> parameters,
+    @required List<FunctionParameter> parameters,
     @required List<Statement> body,
     @required Scope closure,
     @required String name

@@ -3,24 +3,24 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 
 import 'callable.dart';
+import 'function_parameter.dart';
 import 'runtime_value.dart';
-import 'runtime_parameter.dart';
 
 typedef BuiltInFunctionCallback = RuntimeValue Function(Map<String, RuntimeValue> arguments);
 
 /// An Eco function implemented in Dart.
 class BuiltInFunction implements Callable {
   @override
-  UnmodifiableListView<RuntimeParameter> get parameters => _parametersView;
+  UnmodifiableListView<FunctionParameter> get parameters => _parametersView;
 
   final String name;
 
-  UnmodifiableListView<RuntimeParameter> _parametersView;
+  UnmodifiableListView<FunctionParameter> _parametersView;
 
   final BuiltInFunctionCallback _callback;
 
   BuiltInFunction(this._callback, {
-    @required List<RuntimeParameter> parameters,
+    @required List<FunctionParameter> parameters,
     @required this.name
   })
     : assert(parameters != null),

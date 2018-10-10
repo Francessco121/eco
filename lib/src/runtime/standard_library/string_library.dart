@@ -1,7 +1,7 @@
 import '../built_in_function.dart';
 import '../built_in_function_exception.dart';
 import '../built_in_library.dart';
-import '../runtime_parameter.dart';
+import '../function_parameter.dart';
 import '../runtime_value.dart';
 
 class StringLibrary extends BuiltInLibrary {
@@ -28,8 +28,8 @@ class StringLibrary extends BuiltInLibrary {
         return RuntimeValue.fromNumber(str.codeUnitAt(index).toDouble());
       },
       parameters: [
-        RuntimeParameter('str'),
-        RuntimeParameter('index')
+        FunctionParameter('str'),
+        FunctionParameter('index')
       ],
       name: 'byte'
     ));
@@ -60,9 +60,9 @@ class StringLibrary extends BuiltInLibrary {
         return RuntimeValue.fromString(str.substring(startIndex, endIndex));
       },
       parameters: [
-        RuntimeParameter('str'),
-        RuntimeParameter('startIndex'),
-        RuntimeParameter('length')
+        FunctionParameter('str'),
+        FunctionParameter('startIndex'),
+        FunctionParameter('length')
       ],
       name: 'sub'
     ));

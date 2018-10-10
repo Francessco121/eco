@@ -1,8 +1,8 @@
 import 'runtime_value.dart';
 
-class RuntimeParameter {
+class FunctionParameter {
   final String name;
   final RuntimeValue defaultValue;
 
-  RuntimeParameter(this.name, {this.defaultValue});
+  FunctionParameter(this.name, {this.defaultValue});
 }

@@ -9,10 +9,10 @@ import '../program.dart';
 import '../user_library.dart';
 import 'built_in_function_exception.dart';
 import 'callable.dart';
+import 'function_parameter.dart';
 import 'library_environment.dart';
 import 'return_exception.dart';
 import 'runtime_exception.dart';
-import 'runtime_parameter.dart';
 import 'runtime_value.dart';
 import 'runtime_value_type.dart';
 import 'scope.dart';
@@ -240,35 +240,44 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     if (callee.type == RuntimeValueType.function) {
       final Callable callable = callee.function;
 
-      if (call.arguments.length > callable.parameters.length) {
+      final Map<String, RuntimeValue> mappedArguments = {};
+
+      // Map positional arguments
+      if (call.arguments.positional.length > callable.parameters.length) {
         _error(call.openParen, 
-          'Function only has ${callable.parameters.length} parameters '
-          'but was given ${call.arguments.length} arguments.'
+          'Too many arguments. The function only has ${callable.parameters.length} parameters '
+          'but was given ${call.arguments.positional.length} arguments.'
         );
       }
 
-      final Map<String, RuntimeValue> mappedArguments = {};
+      for (int i = 0; i < call.arguments.positional.length; i++) {
+        final RuntimeValue value = _evaluate(call.arguments.positional[i]);
 
-      // Evaluate each argument and map them
-      for (int i = 0; i < callable.parameters.length; i++) {
-        final RuntimeParameter parameter = callable.parameters[i];
+        mappedArguments[callable.parameters[i].name] = value;
+      }
 
-        RuntimeValue argValue;
+      // Map named arguments
+      call.arguments.named.forEach((parameterName, expression) {
+        if (mappedArguments.containsKey(parameterName.lexeme)) {
+          _error(parameterName, 
+            "Parameter '${parameterName.lexeme}' was specified with more than one argument."
+          );
+        }
 
-        if (call.arguments.length > i) {
-          final Expression argument = call.arguments[i];
-          argValue = _evaluate(argument);
-        } else {
-          if (parameter.defaultValue != null) {
-            argValue = parameter.defaultValue;
-          } else {
+        mappedArguments[parameterName.lexeme] = _evaluate(expression);
+      });
+
+      // Check required parameters and add defaults for optional
+      for (final FunctionParameter parameter in callable.parameters) {
+        if (!mappedArguments.containsKey(parameter.name)) {
+          if (parameter.defaultValue == null) {
             _error(call.openParen, 
               "Missing argument for required parameter '${parameter.name}'."
             );
+          } else {
+            mappedArguments[parameter.name] = parameter.defaultValue;
           }
         }
-        
-        mappedArguments[parameter.name] = argValue;
       }
 
       // Run the callable
@@ -411,7 +420,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     return RuntimeValue.fromFunction(
       UserFunction(
         parameters: functionExpression.parameters
-          .map(_convertToRuntimeParameter)
+          .map(_convertParameter)
           .toList(),
         body: functionExpression.body,
         closure: _currentScope,
@@ -424,7 +433,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   void visitFunctionStatement(FunctionStatement functionStatement) {
     final function = new UserFunction(
       parameters: functionStatement.parameters
-        .map(_convertToRuntimeParameter)
+        .map(_convertParameter)
         .toList(),
       body: functionStatement.body,
       closure: _currentScope,
@@ -729,8 +738,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     }
   }
 
-  RuntimeParameter _convertToRuntimeParameter(Parameter parameter) {
-    return RuntimeParameter(
+  FunctionParameter _convertParameter(Parameter parameter) {
+    return FunctionParameter(
       parameter.identifier.lexeme,
       defaultValue: parameter.defaultValue == null
         ? null

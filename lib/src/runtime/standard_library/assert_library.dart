@@ -1,7 +1,7 @@
 import '../built_in_function.dart';
 import '../built_in_function_exception.dart';
 import '../built_in_library.dart';
-import '../runtime_parameter.dart';
+import '../function_parameter.dart';
 import '../runtime_value.dart';
 import '../runtime_value_type.dart';
 
@@ -24,8 +24,8 @@ class AssertLibrary extends BuiltInLibrary {
         }
       },
       parameters: [
-        RuntimeParameter('condition'),
-        RuntimeParameter('errorMessage', defaultValue: RuntimeValue.fromNull())
+        FunctionParameter('condition'),
+        FunctionParameter('errorMessage', defaultValue: RuntimeValue.fromNull())
       ],
       name: 'isTrue'
     ));
@@ -41,8 +41,8 @@ class AssertLibrary extends BuiltInLibrary {
         }
       },
       parameters: [
-        RuntimeParameter('condition'),
-        RuntimeParameter('errorMessage', defaultValue: RuntimeValue.fromNull())
+        FunctionParameter('condition'),
+        FunctionParameter('errorMessage', defaultValue: RuntimeValue.fromNull())
       ],
       name: 'isFalse'
     ));
@@ -58,8 +58,8 @@ class AssertLibrary extends BuiltInLibrary {
         }
       },
       parameters: [
-        RuntimeParameter('object'),
-        RuntimeParameter('errorMessage', defaultValue: RuntimeValue.fromNull())
+        FunctionParameter('object'),
+        FunctionParameter('errorMessage', defaultValue: RuntimeValue.fromNull())
       ],
       name: 'isNull'
     ));
@@ -75,8 +75,8 @@ class AssertLibrary extends BuiltInLibrary {
         }
       },
       parameters: [
-        RuntimeParameter('object'),
-        RuntimeParameter('errorMessage', defaultValue: RuntimeValue.fromNull())
+        FunctionParameter('object'),
+        FunctionParameter('errorMessage', defaultValue: RuntimeValue.fromNull())
       ],
       name: 'isNotNull'
     ));

@@ -198,7 +198,9 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   @override
   void visitCall(CallExpression call) {
     _resolveExpression(call.callee);
-    _resolveExpressions(call.arguments);
+    
+    _resolveExpressions(call.arguments.positional);
+    _resolveExpressions(call.arguments.named.values);
   }
 
   @override
@@ -428,7 +430,7 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
     expression.accept(this);
   }
 
-  void _resolveExpressions(List<Expression> expressions) {
+  void _resolveExpressions(Iterable<Expression> expressions) {
     for (final Expression expression in expressions) {
       expression.accept(this);
     }

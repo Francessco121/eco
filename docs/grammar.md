@@ -64,7 +64,8 @@ get              -> "." IDENTIFIER ;
 index            -> "[" expression "]" ; 
 
 call             -> "(" arguments? ")" ;
-arguments        -> expression ( "," expression )* ;
+arguments        -> argument ( "," argument )* ;
+argument         -> ( IDENTIFIER ":" )? expression ;
 
 primary          -> IDENTIFIER | NUMBER | STRING | "false" | "true" | "null"
                   | "(" expression ")" ;

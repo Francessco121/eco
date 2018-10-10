@@ -1,7 +1,7 @@
 import '../built_in_function.dart';
 import '../built_in_library.dart';
+import '../function_parameter.dart';
 import 'standard_library_options.dart';
-import '../runtime_parameter.dart';
 
 class SystemLibrary extends BuiltInLibrary {
   @override
@@ -19,7 +19,7 @@ class SystemLibrary extends BuiltInLibrary {
         }
       },
       parameters: [
-        RuntimeParameter('message')
+        FunctionParameter('message')
       ],
       name: 'print'
     ));

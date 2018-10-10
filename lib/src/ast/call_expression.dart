@@ -1,10 +1,11 @@
 import '../parsing/token.dart';
+import 'arguments.dart';
 import 'expression.dart';
 import 'expression_visitor.dart';
 
 class CallExpression implements Expression {
   final Expression callee;
-  final List<Expression> arguments;
+  final Arguments arguments;
 
   final Token openParen;
 
