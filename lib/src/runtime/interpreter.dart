@@ -215,20 +215,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
   @override
   void visitBlock(BlockStatement block) {
-    final Scope previousScope = _currentScope;
-
-    try {
-      // Make a new scope for the block
-      _currentScope = new Scope(_currentScope);
-
-      // Run each statement
-      for (Statement statement in block.statements) {
-        _execute(statement);
-      }
-    } finally {
-      // Revert scope
-      _currentScope = previousScope;
-    }
+    _executeBlock(block.statements);
   }
 
   @override
@@ -493,9 +480,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     _currentTagBuffer = new StringBuffer();
 
     // Run the html expression body
-    for (final Statement statement in html.body) {
-      _execute(statement);
-    }
+    _executeBlock(html.body);
 
     // Create the final html string
     final String htmlString = _currentTagBuffer.toString();
@@ -698,9 +683,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
       // Write the end of the opening tag
       _currentTagBuffer.writeln('>');
 
-      for (final Statement statement in tag.body) {
-        _execute(statement);
-      }
+      // Execute body
+      _executeBlock(tag.body);
 
       // Write the closing tag
       _currentTagBuffer.writeln();
@@ -861,6 +845,23 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
   void _execute(Statement statement) {
     statement.accept(this);
+  }
+
+  void _executeBlock(List<Statement> statements) {
+    final Scope previousScope = _currentScope;
+
+    try {
+      // Make a new scope for the block
+      _currentScope = new Scope(_currentScope);
+
+      // Run each statement
+      for (Statement statement in statements) {
+        _execute(statement);
+      }
+    } finally {
+      // Revert scope
+      _currentScope = previousScope;
+    }
   }
 
   RuntimeValue _lookUpVariable(Token name, Expression expression) {

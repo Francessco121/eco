@@ -303,7 +303,9 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   @override
   void visitHtml(HtmlExpression html) {
     _tagContext(() {
-      _resolveStatements(html.body);
+      _blockScope(() {
+        _resolveStatements(html.body);
+      });
     });
   }
 
@@ -369,8 +371,16 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
       _addError(tag.keyword, 'Cannot use tags outside of tag context.');
     }
 
+    if (tag.withClause != null) {
+      for (final Attribute attribute in tag.withClause.attributes) {
+        _resolveExpression(attribute.expression);
+      }
+    }
+
     if (tag.body != null) {
-      _resolveStatements(tag.body);
+      _blockScope(() {
+        _resolveStatements(tag.body);
+      });
     }
   }
 

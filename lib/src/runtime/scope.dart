@@ -32,7 +32,7 @@ class Scope {
     }
 
     throw RuntimeException(name.sourceSpan, 
-      "Undefined variable '${name.lexeme}."
+      "Undefined variable '${name.lexeme}'."
     );
   }
 
@@ -62,7 +62,7 @@ class Scope {
     }
 
     throw RuntimeException(name.sourceSpan, 
-      "Undefined variable '${name.lexeme}."
+      "Undefined variable '${name.lexeme}'."
     );
   }
 
