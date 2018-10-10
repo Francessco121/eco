@@ -1,42 +1,49 @@
+import 'dart:collection';
+
 import 'package:meta/meta.dart';
 
 import '../ast/ast.dart';
-import '../parsing/token.dart';
 import 'callable.dart';
 import 'interpreter.dart';
 import 'return_exception.dart';
+import 'runtime_parameter.dart';
+import 'runtime_value.dart';
 import 'scope.dart';
 
 /// A user-defined function in Eco code.
 class UserFunction implements Callable {
   @override
-  int get arity => _parameters.length;
+  UnmodifiableListView<RuntimeParameter> get parameters => _parametersView;
 
-  final List<Token> _parameters;
+  UnmodifiableListView<RuntimeParameter> _parametersView;
+
   final List<Statement> _body;
   final Scope _closure;
   final String _name;
 
   UserFunction({
-    @required List<Token> parameters,
+    @required List<RuntimeParameter> parameters,
     @required List<Statement> body,
     @required Scope closure,
     @required String name
   })
-    : _parameters = parameters,
-      _body = body,
+    : _body = body,
       _closure = closure,
-      _name = name;
+      _name = name {
+    
+    _parametersView = UnmodifiableListView(parameters);
+  }
 
   @override
-  Object call(Interpreter interpreter, List<Object> arguments) {
+  RuntimeValue call(Interpreter interpreter, Map<String, RuntimeValue> arguments) {
     // Create a new scope for the function body
     final scope = new Scope(_closure);
 
     // Bind each argument to a parameter in the scope
-    for (int i = 0; i < _parameters.length; i++) {
-      scope.define(_parameters[i].lexeme, arguments[i]);
-    }
+    // ignore: unnecessary_lambdas
+    arguments.forEach((paramName, value) {
+      scope.define(paramName, value);
+    });
 
     // Execute the function body
     try {

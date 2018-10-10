@@ -253,9 +253,9 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   @override
   void visitFunctionExpression(FunctionExpression functionExpression) {
     _functionScope(() {
-      for (final Token parameter in functionExpression.parameters) {
-        _declare(parameter);
-        _define(parameter);
+      for (final Parameter parameter in functionExpression.parameters) {
+        _declare(parameter.identifier);
+        _define(parameter.identifier);
       }
 
       _resolveStatements(functionExpression.body);
@@ -278,9 +278,9 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
     _define(functionStatement.name);
 
     _functionScope(() {
-      for (final Token parameter in functionStatement.parameters) {
-        _declare(parameter);
-        _define(parameter);
+      for (final Parameter parameter in functionStatement.parameters) {
+        _declare(parameter.identifier);
+        _define(parameter.identifier);
       }
 
       _resolveStatements(functionStatement.body);

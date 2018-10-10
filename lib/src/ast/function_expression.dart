@@ -1,10 +1,10 @@
-import '../parsing/token.dart';
 import 'expression.dart';
 import 'expression_visitor.dart';
+import 'parameter.dart';
 import 'statement.dart';
 
 class FunctionExpression implements Expression {
-  final List<Token> parameters;
+  final List<Parameter> parameters;
   final List<Statement> body;
 
   FunctionExpression(this.parameters, this.body) {

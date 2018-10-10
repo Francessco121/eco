@@ -1,6 +1,7 @@
 import '../built_in_function.dart';
 import '../built_in_library.dart';
 import 'standard_library_options.dart';
+import '../runtime_parameter.dart';
 
 class SystemLibrary extends BuiltInLibrary {
   @override
@@ -14,10 +15,12 @@ class SystemLibrary extends BuiltInLibrary {
     defineFunction(BuiltInFunction(
       (args) {
         if (options.systemPrintCallback != null) {
-          options.systemPrintCallback(args[0]?.toString() ?? 'null');
+          options.systemPrintCallback(args['message'].toString() ?? 'null');
         }
       },
-      arity: 1,
+      parameters: [
+        RuntimeParameter('message')
+      ],
       name: 'print'
     ));
   }

@@ -7,11 +7,14 @@ import '../library.dart';
 import '../library_identifier.dart';
 import '../program.dart';
 import '../user_library.dart';
-import 'runtime_exception.dart';
 import 'built_in_function_exception.dart';
 import 'callable.dart';
 import 'library_environment.dart';
 import 'return_exception.dart';
+import 'runtime_exception.dart';
+import 'runtime_parameter.dart';
+import 'runtime_value.dart';
+import 'runtime_value_type.dart';
 import 'scope.dart';
 import 'user_function.dart';
 
@@ -36,7 +39,7 @@ abstract class Interpreter {
   }
 }
 
-class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, StatementVisitor {
+class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, StatementVisitor {
   @override
   final LibraryEnvironment environment;
 
@@ -69,35 +72,35 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
   }
 
   @override
-  Object visitArray(ArrayExpression array) {
+  RuntimeValue visitArray(ArrayExpression array) {
     // Evaluate each array item and store them in a list
-    final List<Object> list = [];
+    final List<RuntimeValue> list = [];
 
     for (final Expression value in array.values) {
       list.add(_evaluate(value));
     }
 
-    return list;
+    return RuntimeValue.fromList(list);
   }
 
   @override
-  Object visitAssignment(AssignmentExpression assignment) {
+  RuntimeValue visitAssignment(AssignmentExpression assignment) {
     final Expression target = assignment.target;
 
     if (target is VariableExpression) {
       // variable = value
-      final Object value = _evaluate(assignment.value);
+      final RuntimeValue value = _evaluate(assignment.value);
 
       _assignVariable(target.name, target, value);
 
       return value;
     } else if (target is GetExpression) {
       // map.key = value
-      final Object targetValue = _evaluate(target.target);
+      final RuntimeValue targetValue = _evaluate(target.target);
 
-      if (targetValue is Map<Object, Object>) {
-        final Object value = _evaluate(assignment.value);
-        targetValue[target.name.lexeme] = value;
+      if (targetValue.type == RuntimeValueType.map) {
+        final RuntimeValue value = _evaluate(assignment.value);
+        targetValue.map[RuntimeValue.fromString(target.name.lexeme)] = value;
 
         return value;
       } else {
@@ -106,10 +109,10 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
     } else if (target is IndexExpression) {
       // indexee[key] = value
 
-      final Object targetValue = _evaluate(target.indexee);
-      final Object indexValue = _evaluate(target.index);
+      final RuntimeValue targetValue = _evaluate(target.indexee);
+      final RuntimeValue indexValue = _evaluate(target.index);
 
-      if (targetValue is List<Object>) {
+      if (targetValue.type == RuntimeValueType.list) {
         // list[key] = value
 
         final int intIndex = _checkIntegerOperand(indexValue, target.openBracket);
@@ -119,28 +122,28 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
         }
 
         // Expand the list if necessary
-        if (intIndex >= targetValue.length) {
-          int spaceNeeded = intIndex - targetValue.length + 1;
+        if (intIndex >= targetValue.list.length) {
+          int spaceNeeded = intIndex - targetValue.list.length + 1;
 
           for (int i = 0; i < spaceNeeded; i++) {
-            targetValue.add(null);
+            targetValue.list.add(RuntimeValue.fromNull());
           }
         }
 
         // Set the value
-        final Object value = _evaluate(assignment.value);
-        targetValue[intIndex] = value;
+        final RuntimeValue value = _evaluate(assignment.value);
+        targetValue.list[intIndex] = value;
 
         return value;
-      } else if (targetValue is Map<Object, Object>) {
+      } else if (targetValue.type == RuntimeValueType.map) {
         // map[key] = value
 
-        if (indexValue == null) {
+        if (indexValue.type == RuntimeValueType.$null) {
           _error(target.openBracket, 'Map index must not be null.');
         }
 
-        final Object value = _evaluate(assignment.value);
-        targetValue[indexValue] = value;
+        final RuntimeValue value = _evaluate(assignment.value);
+        targetValue.map[indexValue] = value;
 
         return value;
       } else {
@@ -152,46 +155,50 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
   }
 
   @override
-  Object visitBinary(BinaryExpression binary) {
-    final Object left = _evaluate(binary.left);
-    final Object right = _evaluate(binary.right);
+  RuntimeValue visitBinary(BinaryExpression binary) {
+    final RuntimeValue left = _evaluate(binary.left);
+    final RuntimeValue right = _evaluate(binary.right);
 
     switch (binary.$operator.type) {
       case TokenType.greater:
         _checkNumberOperands(binary.$operator, left, right);
-        return (left as double) > (right as double);
+        return RuntimeValue.fromBoolean(left.number > right.number);
       case TokenType.greaterEqual:
         _checkNumberOperands(binary.$operator, left, right);
-        return (left as double) >= (right as double);
+        return RuntimeValue.fromBoolean(left.number >= right.number);
       case TokenType.less:
         _checkNumberOperands(binary.$operator, left, right);
-        return (left as double) < (right as double);
+        return RuntimeValue.fromBoolean(left.number < right.number);
       case TokenType.lessEqual:
         _checkNumberOperands(binary.$operator, left, right);
-        return (left as double) <= (right as double);
+        return RuntimeValue.fromBoolean(left.number <= right.number);
       case TokenType.minus:
         _checkNumberOperands(binary.$operator, left, right);
-        return (left as double) - (right as double);
+        return RuntimeValue.fromNumber(left.number - right.number);
       case TokenType.plus:
         _checkNumberOperands(binary.$operator, left, right);
-        return (left as double) + (right as double);
+        return RuntimeValue.fromNumber(left.number + right.number);
       case TokenType.forwardSlash:
         _checkNumberOperands(binary.$operator, left, right);
-        return (left as double) / (right as double);
+        return RuntimeValue.fromNumber(left.number / right.number);
       case TokenType.star:
         _checkNumberOperands(binary.$operator, left, right);
-        return (left as double) * (right as double);
+        return RuntimeValue.fromNumber(left.number * right.number);
       case TokenType.bangEqual:
-        return !_isEqual(left, right);
+        return RuntimeValue.fromBoolean(left != right);
       case TokenType.equalEqual:
-        return _isEqual(left, right);
+        return RuntimeValue.fromBoolean(left == right);
       case TokenType.dotDot:
-        if (left is String && right is String) {
-          return left + right;
-        } else if (left is List<Object> && right is List<Object>) {
-          return <Object>[]
-            ..addAll(left)
-            ..addAll(right);
+        if (left.type == RuntimeValueType.string && right.type == RuntimeValueType.string) {
+          // String concatenation
+          return RuntimeValue.fromString(left.string + right.string);
+        } else if (left.type == RuntimeValueType.list && right.type == RuntimeValueType.list) {
+          // List concatenation
+          return RuntimeValue.fromList(
+            <RuntimeValue>[]
+              ..addAll(left.list)
+              ..addAll(right.list)
+          );
         }
 
         _error(binary.$operator, 'Concatenation operands must both be strings or lists.');
@@ -226,30 +233,45 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
   }
 
   @override
-  Object visitCall(CallExpression call) {
+  RuntimeValue visitCall(CallExpression call) {
     // Evaluate the target
-    final Object callee = _evaluate(call.callee);
+    final RuntimeValue callee = _evaluate(call.callee);
 
-    // Evaluate each argument
-    final List<Object> arguments = [];
-    for (Expression argument in call.arguments) {
-      arguments.add(_evaluate(argument));
-    }
+    if (callee.type == RuntimeValueType.function) {
+      final Callable callable = callee.function;
 
-    if (callee is Callable) {
-      // Check the arity
-      if (arguments.length == callee.arity) {
-        // Run the callable
-        try {
-          return callee.call(this, arguments);
-        } on BuiltInFunctionException catch (ex) {
-          // Convert built-in function exceptions
-          _error(call.openParen, ex.message);
-        }
-      } else {
+      if (call.arguments.length > callable.parameters.length) {
         _error(call.openParen, 
-          'Expected ${callee.arity} arguments but got ${arguments.length}.'
+          'Function only has ${callable.parameters.length} parameters '
+          'but was given ${call.arguments.length} arguments.'
         );
+      }
+
+      final Map<String, RuntimeValue> mappedArguments = {};
+
+      // Evaluate each argument and map them
+      for (int i = 0; i < callable.parameters.length; i++) {
+        final RuntimeParameter parameter = callable.parameters[i];
+
+        RuntimeValue argValue;
+
+        if (call.arguments.length > i) {
+          final Expression argument = call.arguments[i];
+          argValue = _evaluate(argument);
+        } else {
+          // Default missing arguments to their default value or null
+          argValue = parameter.defaultValue ?? RuntimeValue.fromNull();
+        }
+        
+        mappedArguments[parameter.name] = argValue;
+      }
+
+      // Run the callable
+      try {
+        return callable.call(this, mappedArguments);
+      } on BuiltInFunctionException catch (ex) {
+        // Convert built-in function exceptions
+        _error(call.openParen, ex.message);
       }
     } else {
       _error(call.openParen, 'Only functions are callable.');
@@ -285,10 +307,10 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
       while (true) {
         // Check condition
         if ($for.condition != null) {
-          final Object value = _evaluate($for.condition);
+          final RuntimeValue value = _evaluate($for.condition);
 
-          if (value is bool) {
-            if (!value) {
+          if (value.type == RuntimeValueType.boolean) {
+            if (!value.boolean) {
               break;
             }
           } else {
@@ -322,26 +344,26 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
 
     try {
       // Evaluate the iterable
-      final Object iterable = _evaluate(foreach.inExpression);
+      final RuntimeValue iterable = _evaluate(foreach.inExpression);
 
       // Create a scope for the key/value variables
       _currentScope = new Scope(outerScope);
 
       // Define key and values variables
-      _currentScope.define(foreach.keyName.lexeme, null);
+      _currentScope.define(foreach.keyName.lexeme, RuntimeValue.fromNull());
       
       if (foreach.valueName != null) {
-        _currentScope.define(foreach.valueName.lexeme, null);
+        _currentScope.define(foreach.valueName.lexeme, RuntimeValue.fromNull());
       }
 
       // Iterate
-      if (iterable is List<Object>) {
-        for (int i = 0; i < iterable.length; i++) {
+      if (iterable.type == RuntimeValueType.list) {
+        for (int i = 0; i < iterable.list.length; i++) {
           // Update key and value variables
-          _currentScope.assign(foreach.keyName, i.toDouble());
+          _currentScope.assign(foreach.keyName, RuntimeValue.fromNumber(i.toDouble()));
 
           if (foreach.valueName != null) {
-            _currentScope.assign(foreach.valueName, iterable[i]);
+            _currentScope.assign(foreach.valueName, iterable.list[i]);
           }
 
           // Execute the loop body
@@ -351,8 +373,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
             // Loop body was stopped early by a continue statement
           }
         }
-      } else if (iterable is Map<Object, Object>) {
-        iterable.forEach((key, value) {
+      } else if (iterable.type == RuntimeValueType.map) {
+        iterable.map.forEach((key, value) {
           // Update key and value variables
           _currentScope.assign(foreach.keyName, key);
 
@@ -380,19 +402,25 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
   }
 
   @override
-  Object visitFunctionExpression(FunctionExpression functionExpression) {
-    return UserFunction(
-      parameters: functionExpression.parameters,
-      body: functionExpression.body,
-      closure: _currentScope,
-      name: null // Anonymous functions don't have names
+  RuntimeValue visitFunctionExpression(FunctionExpression functionExpression) {
+    return RuntimeValue.fromFunction(
+      UserFunction(
+        parameters: functionExpression.parameters
+          .map(_convertToRuntimeParameter)
+          .toList(),
+        body: functionExpression.body,
+        closure: _currentScope,
+        name: null // Anonymous functions don't have names
+      )
     );
   }
 
   @override
   void visitFunctionStatement(FunctionStatement functionStatement) {
     final function = new UserFunction(
-      parameters: functionStatement.parameters,
+      parameters: functionStatement.parameters
+        .map(_convertToRuntimeParameter)
+        .toList(),
       body: functionStatement.body,
       closure: _currentScope,
       name: functionStatement.name.lexeme
@@ -402,37 +430,37 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
       ? environment.publicScope
       : _currentScope;
 
-    scope.define(functionStatement.name.lexeme, function);
+    scope.define(functionStatement.name.lexeme, RuntimeValue.fromFunction(function));
   }
 
   @override
-  Object visitGet(GetExpression $get) {
+  RuntimeValue visitGet(GetExpression $get) {
     // Evaluate the target
-    final Object target = _evaluate($get.target);
+    final RuntimeValue target = _evaluate($get.target);
 
     // Evaluate the get
-    if (target is Map<Object, Object>) {
+    if (target.type == RuntimeValueType.map) {
       // map.key
-      return target[$get.name.lexeme];
-    } else if (target is LibraryEnvironment) {
+      return target.map[RuntimeValue.fromString($get.name.lexeme)];
+    } else if (target.type == RuntimeValueType.library) {
       // library.variable
-      return target.publicScope.get($get.name);
+      return target.library.publicScope.get($get.name);
     }
 
     _error($get.dot, 'Get target must be a map or a library.');
   }
 
   @override
-  Object visitGrouping(GroupingExpression grouping) {
+  RuntimeValue visitGrouping(GroupingExpression grouping) {
     return _evaluate(grouping.expression);
   }
 
   @override
   void visitIf(IfStatement $if) {
-    final Object conditionValue = _evaluate($if.condition);
+    final RuntimeValue conditionValue = _evaluate($if.condition);
 
-    if (conditionValue is bool) {
-      if (conditionValue) {
+    if (conditionValue.type == RuntimeValueType.boolean) {
+      if (conditionValue.boolean) {
         _execute($if.thenStatement);
       } else if ($if.elseStatement != null) {
         _execute($if.elseStatement);
@@ -453,22 +481,25 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
       _program.loadEnvironment(importedLibrary);
 
     // Define the import under the specified 'as' identifier
-    _currentScope.define($import.asIdentifier.lexeme, importedEnvironment);
+    _currentScope.define(
+      $import.asIdentifier.lexeme, 
+      RuntimeValue.fromLibrary(importedEnvironment)
+    );
   }
 
   @override
-  Object visitIndex(IndexExpression indexExpression) {
-    final Object indexee = _evaluate(indexExpression.indexee);
-    final Object index = _evaluate(indexExpression.index);
+  RuntimeValue visitIndex(IndexExpression indexExpression) {
+    final RuntimeValue indexee = _evaluate(indexExpression.indexee);
+    final RuntimeValue index = _evaluate(indexExpression.index);
 
-    if (indexee is List<Object>) {
+    if (indexee.type == RuntimeValueType.list) {
       // Indexing a list
-      if (index is double) {
-        final int intIndex = index.truncate();
+      if (index.type == RuntimeValueType.number) {
+        final int intIndex = index.number.truncate();
         
-        if (intIndex == index) {
-          if (intIndex >= 0 && intIndex < indexee.length) {
-            return indexee[intIndex];
+        if (intIndex == index.number) {
+          if (intIndex >= 0 && intIndex < indexee.list.length) {
+            return indexee.list[intIndex];
           } else {
             _error(indexExpression.openBracket, 'List index is out of range.');
           }
@@ -476,10 +507,10 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
       }
 
       _error(indexExpression.openBracket, 'List index must be an integer.');
-    } else if (indexee is Map<Object, Object>) {
+    } else if (indexee.type == RuntimeValueType.map) {
       // Indexing a map
-      if (index != null) {
-        return indexee[index];
+      if (index.type != RuntimeValueType.$null) {
+        return indexee.map[index];
       } else {
         _error(indexExpression.openBracket, 'Map index must not be null.');
       }
@@ -489,29 +520,29 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
   }
 
   @override
-  Object visitLiteral(LiteralExpression literal) {
+  RuntimeValue visitLiteral(LiteralExpression literal) {
     return literal.value;
   }
 
   @override
-  Object visitLogical(LogicalExpression logical) {
-    final Object left = _evaluate(logical.left);
+  RuntimeValue visitLogical(LogicalExpression logical) {
+    final RuntimeValue left = _evaluate(logical.left);
 
-    if (left is bool) {
+    if (left.type == RuntimeValueType.boolean) {
       // Short-circuit if possible
       if (logical.$operator.type == TokenType.or) {
-        if (left) {
-          return true;
+        if (left.boolean) {
+          return RuntimeValue.fromBoolean(true);
         }
       } else {
-        if (!left) {
-          return false;
+        if (!left.boolean) {
+          return RuntimeValue.fromBoolean(false);
         }
       }
 
-      final Object right = _evaluate(logical.right);
+      final RuntimeValue right = _evaluate(logical.right);
 
-      if (right is bool) {
+      if (right.type == RuntimeValueType.boolean) {
         return right;
       } else {
         _error(logical.$operator, 'Right logical operand must be a boolean.');
@@ -522,43 +553,45 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
   }
 
   @override
-  Object visitMap(MapExpression mapExpression) {
-    final Map<Object, Object> map = {};
+  RuntimeValue visitMap(MapExpression mapExpression) {
+    final Map<RuntimeValue, RuntimeValue> map = {};
 
     // Evaluate each pair and store the results in a map
     for (final MapPair pair in mapExpression.pairs) {
       // Evaluate key
       final Expression keyExpression = pair.key;
 
-      Object key;
+      RuntimeValue key;
       if (keyExpression is VariableExpression) {
         // Keys can be identifiers as a shortcut for string keys
-        key = keyExpression.name.lexeme;
+        key = RuntimeValue.fromString(keyExpression.name.lexeme);
       } else {
         key = _evaluate(keyExpression);
       }
 
       // Ensure the evaluated key is not null
-      if (key == null) {
+      if (key.type == RuntimeValueType.$null) {
         _error(pair.colon, 'Map keys must not be null.');
       }
 
       // Evaluate value
-      Object value = _evaluate(pair.value);
+      RuntimeValue value = _evaluate(pair.value);
 
       map[key] = value;
     }
 
-    return map;
+    return RuntimeValue.fromMap(map);
   }
 
   @override
   void visitReturn(ReturnStatement $return) {
     // Evaluate return value if present
-    Object value = null;
+    RuntimeValue value;
 
     if ($return.expression != null) {
       value = _evaluate($return.expression);
+    } else {
+      value = RuntimeValue.fromNull();
     }
 
     // Throw a special exception to unwind the stack back to a function call.
@@ -566,11 +599,11 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
   }
 
   @override
-  Object visitTernary(TernaryExpression ternary) {
-    final Object value = _evaluate(ternary.condition);
+  RuntimeValue visitTernary(TernaryExpression ternary) {
+    final RuntimeValue value = _evaluate(ternary.condition);
 
-    if (value is bool) {
-      if (value) {
+    if (value.type == RuntimeValueType.boolean) {
+      if (value.boolean) {
         return _evaluate(ternary.thenExpression);
       } else {
         return _evaluate(ternary.elseExpression);
@@ -581,7 +614,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
   }
 
   @override
-  Object visitUnary(UnaryExpression unary) {
+  RuntimeValue visitUnary(UnaryExpression unary) {
     // Post-fix operators
     if (unary.$operator.type == TokenType.plusPlus
       || unary.$operator.type == TokenType.minusMinus
@@ -589,15 +622,15 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
       final expression = unary.expression;
 
       if (expression is VariableExpression) {
-        final Object value = _lookUpVariable(expression.name, expression);
+        final RuntimeValue value = _lookUpVariable(expression.name, expression);
 
-        if (value is double) {
+        if (value.type == RuntimeValueType.number) {
           if (unary.$operator.type == TokenType.plusPlus) {
             // value++
-            _currentScope.assign(expression.name, value + 1);
+            _currentScope.assign(expression.name, RuntimeValue.fromNumber(value.number + 1));
           } else {
             // value--
-            _currentScope.assign(expression.name, value - 1);
+            _currentScope.assign(expression.name, RuntimeValue.fromNumber(value.number - 1));
           }
         }
 
@@ -609,31 +642,27 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
     }
 
     // Pre-fix unary operators
-    final Object value = _evaluate(unary.expression);
+    final RuntimeValue value = _evaluate(unary.expression);
 
     switch (unary.$operator.type) {
       case TokenType.bang:
         // !value
         _checkBooleanOperand(unary.$operator, value);
 
-        final bool boolean = value;
-
-        return !boolean;
+        return RuntimeValue.fromBoolean(!value.boolean);
       case TokenType.minus:
         // -value
         _checkNumberOperand(unary.$operator, value);
 
-        final double number = value;
-
-        return -number;
+        return RuntimeValue.fromNumber(-value.number);
       case TokenType.hash:
         // #value
-        if (value is List<Object>) {
-          return value.length.toDouble();
-        } else if (value is Map<Object, Object>) {
-          return value.length.toDouble();
-        } else if (value is String) {
-          return value.length.toDouble();
+        if (value.type == RuntimeValueType.list) {
+          return RuntimeValue.fromNumber(value.list.length.toDouble());
+        } else if (value.type == RuntimeValueType.map) {
+          return RuntimeValue.fromNumber(value.map.length.toDouble());
+        } else if (value.type == RuntimeValueType.string) {
+          return RuntimeValue.fromNumber(value.string.length.toDouble());
         }
 
         _error(unary.$operator, 'Unary length operand must be a list, map, or string.');
@@ -644,16 +673,19 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
   }
 
   @override
-  Object visitVariable(VariableExpression variable) {
+  RuntimeValue visitVariable(VariableExpression variable) {
     return _lookUpVariable(variable.name, variable);
   }
 
   @override
   void visitVariableStatement(VariableStatement variableStatement) {
     // Evaluate initializer if present
-    Object value = null;
+    RuntimeValue value;
+
     if (variableStatement.initializer != null) {
       value = _evaluate(variableStatement.initializer);
+    } else {
+      value = new RuntimeValue.fromNull();
     }
 
     // Define variable
@@ -670,10 +702,10 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
       // Loop until condition is false
       while (true) {
         // Check condition
-        final Object conditionValue = _evaluate($while.condition);
+        final RuntimeValue conditionValue = _evaluate($while.condition);
 
-        if (conditionValue is bool) {
-          if (!conditionValue) {
+        if (conditionValue.type == RuntimeValueType.boolean) {
+          if (!conditionValue.boolean) {
             break;
           }
         } else {
@@ -692,7 +724,16 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
     }
   }
 
-  Object _evaluate(Expression expression) {
+  RuntimeParameter _convertToRuntimeParameter(Parameter parameter) {
+    return RuntimeParameter(
+      parameter.identifier.lexeme,
+      defaultValue: parameter.defaultValue == null
+        ? null
+        : _evaluate(parameter.defaultValue)
+    );
+  }
+
+  RuntimeValue _evaluate(Expression expression) {
     return expression.accept(this);
   }
 
@@ -700,14 +741,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
     statement.accept(this);
   }
 
-  bool _isEqual(Object a, Object b) {
-    if (a == null && b == null) return true;
-    if (a == null) return false;
-
-    return a == b;
-  }
-
-  Object _lookUpVariable(Token name, Expression expression) {
+  RuntimeValue _lookUpVariable(Token name, Expression expression) {
     final int distance = library.locals[expression];
 
     if (distance != null) {
@@ -717,7 +751,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
     }
   }
 
-  void _assignVariable(Token name, Expression expression, Object value) {
+  void _assignVariable(Token name, Expression expression, RuntimeValue value) {
     final int distance = library.locals[expression];
 
     if (distance != null) {
@@ -734,12 +768,12 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
 
   /// Returns [value] as an `int`.
   /// 
-  /// Throws a [RuntimeException] if [value] is not a `double` integer.
-  int _checkIntegerOperand(Object value, Token token) {
-    if (value is double) {
-      final int intValue = value.truncate();
+  /// Throws a [RuntimeException] if [value] is not an integer expressed as a number.
+  int _checkIntegerOperand(RuntimeValue value, Token token) {
+    if (value.type == RuntimeValueType.number) {
+      final int intValue = value.number.truncate();
 
-      if (intValue == value) {
+      if (intValue == value.number) {
         return intValue;
       }
     }
@@ -747,27 +781,29 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<Object>, Statem
     _error(token, 'Value must be an integer.');
   }
 
-  /// Throws a [RuntimeException] if [operand] is not a `bool`.
-  void _checkBooleanOperand(Token $operator, Object operand) {
-    if (operand is bool) {
+  /// Throws a [RuntimeException] if [operand] is not a boolean.
+  void _checkBooleanOperand(Token $operator, RuntimeValue operand) {
+    if (operand.type == RuntimeValueType.boolean) {
       return;
     }
 
     _error($operator, 'Operand must be a number.');
   }
 
-  /// Throws a [RuntimeException] if [operand] is not a `double`.
-  void _checkNumberOperand(Token $operator, Object operand) {
-    if (operand is double) {
+  /// Throws a [RuntimeException] if [operand] is not a number.
+  void _checkNumberOperand(Token $operator, RuntimeValue operand) {
+    if (operand.type == RuntimeValueType.number) {
       return;
     }
 
     _error($operator, 'Operand must be a number.');
   }
 
-  /// Throws a [RuntimeException] if [left] or [right] is not a `double`.
-  void _checkNumberOperands(Token $operator, Object left, Object right) {
-    if (left is double && right is double) {
+  /// Throws a [RuntimeException] if [left] or [right] is not a number.
+  void _checkNumberOperands(Token $operator, RuntimeValue left, RuntimeValue right) {
+    if (left.type == RuntimeValueType.number 
+      && right.type == RuntimeValueType.number
+    ) {
       return;
     }
 

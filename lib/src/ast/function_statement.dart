@@ -1,10 +1,11 @@
 import '../parsing/token.dart';
+import 'parameter.dart';
 import 'statement.dart';
 import 'statement_visitor.dart';
 
 class FunctionStatement implements Statement {
   final Token name;
-  final List<Token> parameters;
+  final List<Parameter> parameters;
   final List<Statement> body;
   final Token publicKeyword;
 

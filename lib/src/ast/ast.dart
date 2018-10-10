@@ -21,6 +21,7 @@ export 'literal_expression.dart';
 export 'logical_expression.dart';
 export 'map_expression.dart';
 export 'map_pair.dart';
+export 'parameter.dart';
 export 'return_statement.dart';
 export 'statement.dart';
 export 'statement_visitor.dart';

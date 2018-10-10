@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 
 import '../ast/ast.dart';
+import '../runtime/runtime_value.dart';
 import 'parse_error.dart';
 import 'token.dart';
 import 'token_type.dart';
@@ -120,7 +121,7 @@ class _Parser {
 
     _consume(TokenType.leftParen, "Expected '(' to begin function parameter list.");
 
-    final List<Token> parameters = _parameters();
+    final List<Parameter> parameters = _parameters();
 
     _consume(TokenType.rightParen, "Expected ')' to end function parameter list.");
     _consume(TokenType.leftBrace, "Expected '{' to begin function body.");
@@ -543,7 +544,7 @@ class _Parser {
       );
 
       // Parse parameter list
-      final List<Token> parameters = _parameters();
+      final List<Parameter> parameters = _parameters();
 
       // Consume ')'
       _consume(TokenType.rightParen,
@@ -567,18 +568,28 @@ class _Parser {
     return _map();
   }
 
-  List<Token> _parameters() {
-    final List<Token> identifiers = [];
+  List<Parameter> _parameters() {
+    final List<Parameter> params = [];
 
     while (_check(TokenType.identifier)) {
-      identifiers.add(_advance());
+      final Token identifier = _advance();
+
+      Token equalSign = null;
+      Expression defaultValue = null;
+
+      if (_check(TokenType.equal)) {
+        equalSign = _advance();
+        defaultValue = _value();
+      }
+
+      params.add(Parameter(identifier, equalSign, defaultValue));
 
       if (!_match(TokenType.comma)) {
         break;
       }
     }
 
-    return identifiers;
+    return params;
   }
 
   Expression _map() {
@@ -712,13 +723,17 @@ class _Parser {
       return VariableExpression(_advance());
     }
 
-    if (_checkAny(const [TokenType.number, TokenType.string])) {
-      return LiteralExpression(_advance().literal);
+    if (_check(TokenType.string)) {
+      return LiteralExpression(RuntimeValue.fromString(_advance().literal as String));
     }
 
-    if (_match(TokenType.$false)) return LiteralExpression(false);
-    if (_match(TokenType.$true)) return LiteralExpression(true);
-    if (_match(TokenType.$null)) return LiteralExpression(null);
+    if (_check(TokenType.number)) {
+      return LiteralExpression(RuntimeValue.fromNumber(_advance().literal as double));
+    }
+
+    if (_match(TokenType.$false)) return LiteralExpression(RuntimeValue.fromBoolean(false));
+    if (_match(TokenType.$true)) return LiteralExpression(RuntimeValue.fromBoolean(true));
+    if (_match(TokenType.$null)) return LiteralExpression(RuntimeValue.fromNull());
 
     if (_match(TokenType.leftParen)) {
       final Expression expression = _expression();

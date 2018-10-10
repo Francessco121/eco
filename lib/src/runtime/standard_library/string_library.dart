@@ -1,6 +1,8 @@
 import '../built_in_function.dart';
 import '../built_in_function_exception.dart';
 import '../built_in_library.dart';
+import '../runtime_parameter.dart';
+import '../runtime_value.dart';
 
 class StringLibrary extends BuiltInLibrary {
   @override
@@ -13,8 +15,8 @@ class StringLibrary extends BuiltInLibrary {
     // byte
     defineFunction(BuiltInFunction(
       (args) {
-        final String str = parseString(args, 0);
-        final int index = parseInteger(args, 1);
+        final String str = parseString(args, 'str');
+        final int index = parseInteger(args, 'index');
 
         if (index < 0 || index >= str.length) {
           throw BuiltInFunctionException(
@@ -23,18 +25,21 @@ class StringLibrary extends BuiltInLibrary {
           );
         }
 
-        return str.codeUnitAt(index).toDouble();
+        return RuntimeValue.fromNumber(str.codeUnitAt(index).toDouble());
       },
-      arity: 2,
+      parameters: [
+        RuntimeParameter('str'),
+        RuntimeParameter('index')
+      ],
       name: 'byte'
     ));
 
     // sub
     defineFunction(BuiltInFunction(
       (args) {
-        final String str = parseString(args, 0);
-        final int startIndex = parseInteger(args, 1);
-        final int length = parseInteger(args, 2);
+        final String str = parseString(args, 'str');
+        final int startIndex = parseInteger(args, 'startIndex');
+        final int length = parseInteger(args, 'length');
 
         if (startIndex < 0 || startIndex > str.length) {
           throw BuiltInFunctionException(
@@ -52,9 +57,13 @@ class StringLibrary extends BuiltInLibrary {
           );
         }
 
-        return str.substring(startIndex, endIndex);
+        return RuntimeValue.fromString(str.substring(startIndex, endIndex));
       },
-      arity: 3,
+      parameters: [
+        RuntimeParameter('str'),
+        RuntimeParameter('startIndex'),
+        RuntimeParameter('length')
+      ],
       name: 'sub'
     ));
   }

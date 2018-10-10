@@ -5,6 +5,10 @@ import '../program.dart';
 import 'built_in_function.dart';
 import 'built_in_function_exception.dart';
 import 'library_environment.dart';
+import 'runtime_value.dart';
+import 'runtime_value_type.dart';
+
+// ignore_for_file: avoid_returning_null
 
 /// An Eco library implemented in Dart.
 abstract class BuiltInLibrary implements Library {
@@ -23,7 +27,7 @@ abstract class BuiltInLibrary implements Library {
   /// implicitly imported as `import 'eco:math' as Math;`.
   String get defaultImportIdentifier;
 
-  final Map<String, Object> _variables = {};
+  final Map<String, RuntimeValue> _variables = {};
 
   @override
   @mustCallSuper
@@ -35,148 +39,124 @@ abstract class BuiltInLibrary implements Library {
   }
 
   /// Defines a library-scoped variable with the given [name] and [value].
-  /// 
-  /// [value] must be `null`, a numeric, `String`, `List<Object>`, or `Map<Object, Object>`.
-  void defineVariable(String name, Object value) {
-    // Convert numerics to doubles
-    if (value is num) {
-      value = value as double;
-    }
-
-    // Ensure value is valid for Eco
-    if (value != null
-      && value is! double
-      && value is! String
-      && value is! List<Object>
-      && value is! Map<Object, Object>
-    ) {
-      throw ArgumentError.value(
-        value, 
-        'value',
-        'Value must be a numeric, String, List<Object>, or Map<Object, Object>.'
-      );
-    }
-
+  void defineVariable(String name, RuntimeValue value) {
     _variables[name] = value;
   }
 
   /// Defines a library-scoped [function].
   void defineFunction(BuiltInFunction function) {
-    _variables[function.name] = function;
+    _variables[function.name] = RuntimeValue.fromFunction(function);
   }
 
   /// Utility function to parse a boolean from function [args].
   @protected
-  bool parseBoolean(List<Object> args, int index, {
+  bool parseBoolean(Map<String, RuntimeValue> args, String paramName, {
     bool allowNull = false
   }) {
-    final Object value = args[index];
+    final RuntimeValue value = args[paramName];
 
-    if (allowNull && value == null) {
-      // ignore: avoid_returning_null
+    if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
     }
 
-    if (value is bool) {
-      return value;
+    if (value.type == RuntimeValueType.boolean) {
+      return value.boolean;
     }
 
-    throw BuiltInFunctionException('Argument ${index + 1} must be a boolean.');
+    throw BuiltInFunctionException("Argument '$paramName' must be a boolean.");
   }
 
   /// Utility function to parse a double from function [args].
   @protected
-  double parseDouble(List<Object> args, int index, {
+  double parseDouble(Map<String, RuntimeValue> args, String paramName, {
     bool allowNull = false
   }) {
-    final Object value = args[index];
+    final RuntimeValue value = args[paramName];
 
-    if (allowNull && value == null) {
-      // ignore: avoid_returning_null
+    if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
     }
 
-    if (value is double) {
-      return value;
+    if (value.type == RuntimeValueType.number) {
+      return value.number;
     }
 
-    throw BuiltInFunctionException('Argument ${index + 1} must be a number.');
+    throw BuiltInFunctionException("Argument '$paramName' must be a number.");
   }
 
   /// Utility function to parse an integer from function [args].
   @protected
-  int parseInteger(List<Object> args, int index, {
+  int parseInteger(Map<String, RuntimeValue> args, String paramName, {
     bool allowNull = false
   }) {
-    final Object value = args[index];
+    final RuntimeValue value = args[paramName];
 
-    if (allowNull && value == null) {
-      // ignore: avoid_returning_null
+    if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
     }
 
-    if (value is double) {
-      int intValue = value.truncate();
+    if (value.type == RuntimeValueType.number) {
+      int intValue = value.number.truncate();
 
-      if (intValue == value) {
+      if (intValue == value.number) {
         return intValue;
       }
     }
 
-    throw BuiltInFunctionException('Argument ${index + 1} must be an integer.');
+    throw BuiltInFunctionException("Argument '$paramName' must be an integer.");
   }
 
   /// Utility function to parse a string from function [args].
   @protected
-  String parseString(List<Object> args, int index, {
+  String parseString(Map<String, RuntimeValue> args, String paramName, {
     bool allowNull = false
   }) {
-    final Object value = args[index];
+    final RuntimeValue value = args[paramName];
 
-    if (allowNull && value == null) {
+    if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
     }
 
-    if (value is String) {
-      return value;
+    if (value.type == RuntimeValueType.string) {
+      return value.string;
     }
 
-    throw BuiltInFunctionException('Argument ${index + 1} must be a string.');
+    throw BuiltInFunctionException("Argument '$paramName' must be a string.");
   }
 
   /// Utility function to parse a list from function [args].
   @protected
-  List<Object> parseList(List<Object> args, int index, {
+  List<RuntimeValue> parseList(Map<String, RuntimeValue> args, String paramName, {
     bool allowNull = false
   }) {
-    final Object value = args[index];
+    final RuntimeValue value = args[paramName];
 
-    if (allowNull && value == null) {
+    if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
     }
 
-    if (value is List<Object>) {
-      return value;
+    if (value.type == RuntimeValueType.list) {
+      return value.list;
     }
 
-    throw BuiltInFunctionException('Argument ${index + 1} must be a list.');
+    throw BuiltInFunctionException("Argument '$paramName' must be a list.");
   }
 
   /// Utility function to parse a map from function [args].
   @protected
-  Map<Object, Object> parseMap(List<Object> args, int index, {
+  Map<RuntimeValue, RuntimeValue> parseMap(Map<String, RuntimeValue> args, String paramName, {
     bool allowNull = false
   }) {
-    final Object value = args[index];
+    final RuntimeValue value = args[paramName];
 
-    if (allowNull && value == null) {
+    if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
     }
 
-    if (value is Map<Object, Object>) {
-      return value;
+    if (value.type == RuntimeValueType.map) {
+      return value.map;
     }
 
-    throw BuiltInFunctionException('Argument ${index + 1} must be a map.');
+    throw BuiltInFunctionException("Argument '$paramName' must be a map.");
   }
 }

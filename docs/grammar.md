@@ -47,7 +47,8 @@ value            -> function ;
 
 function         -> "fn" "(" parameters? ")" block_stmt
                   | map ;
-parameters       -> IDENTIFIER ( "," IDENTIFIER )* ;
+parameters       -> parameter ( "," parameter )* ;
+parameter        -> IDENTIFIER ( "=" value )? ;
 
 map              -> "{" ( key_value_pair ( "," key_value_pair )* )? "}"
                   | array ;
