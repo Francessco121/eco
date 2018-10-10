@@ -13,7 +13,7 @@ class SystemLibrary extends BuiltInLibrary {
   SystemLibrary(StandardLibraryOptions options) {
     // print
     defineFunction(BuiltInFunction(
-      (args) {
+      (_, args) {
         if (options.systemPrintCallback != null) {
           options.systemPrintCallback(args['message'].toString() ?? 'null');
         }

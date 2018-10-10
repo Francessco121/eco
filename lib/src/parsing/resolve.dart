@@ -261,7 +261,13 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
         _define(parameter.identifier);
       }
 
-      _resolveStatements(functionExpression.body);
+      if (functionExpression.body != null) {
+        _resolveStatements(functionExpression.body);
+      }
+
+      if (functionExpression.expression != null) {
+        _resolveExpression(functionExpression.expression);
+      }
     });
   }
 

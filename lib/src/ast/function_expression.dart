@@ -6,10 +6,10 @@ import 'statement.dart';
 class FunctionExpression implements Expression {
   final List<Parameter> parameters;
   final List<Statement> body;
+  final Expression expression;
 
-  FunctionExpression(this.parameters, this.body) {
+  FunctionExpression(this.parameters, {this.body, this.expression}) {
     if (parameters == null) throw ArgumentError.notNull('parameters');
-    if (body == null) throw ArgumentError.notNull('body');
   }
 
   @override

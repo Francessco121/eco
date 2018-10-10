@@ -28,6 +28,7 @@ enum TokenType {
   star,
   hash,
   percent,
+  arrow,
 
   // Literals
   identifier,

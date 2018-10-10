@@ -4,6 +4,7 @@ import '../library.dart';
 import '../program.dart';
 import 'built_in_function.dart';
 import 'built_in_function_exception.dart';
+import 'callable.dart';
 import 'library_environment.dart';
 import 'runtime_value.dart';
 import 'runtime_value_type.dart';
@@ -158,5 +159,41 @@ abstract class BuiltInLibrary implements Library {
     }
 
     throw BuiltInFunctionException("Argument '$paramName' must be a map.");
+  }
+
+  /// Utility function to parse a function from function [args].
+  @protected
+  Callable parseFunction(Map<String, RuntimeValue> args, String paramName, {
+    bool allowNull = false
+  }) {
+    final RuntimeValue value = args[paramName];
+
+    if (allowNull && value.type == RuntimeValueType.$null) {
+      return null;
+    }
+
+    if (value.type == RuntimeValueType.function) {
+      return value.function;
+    }
+
+    throw BuiltInFunctionException("Argument '$paramName' must be a function.");
+  }
+
+  /// Utility function to parse a library from function [args].
+  @protected
+  LibraryEnvironment parseLibrary(Map<String, RuntimeValue> args, String paramName, {
+    bool allowNull = false
+  }) {
+    final RuntimeValue value = args[paramName];
+
+    if (allowNull && value.type == RuntimeValueType.$null) {
+      return null;
+    }
+
+    if (value.type == RuntimeValueType.library) {
+      return value.library;
+    }
+
+    throw BuiltInFunctionException("Argument '$paramName' must be a library.");
   }
 }

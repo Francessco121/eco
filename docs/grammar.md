@@ -50,7 +50,7 @@ unary            -> ( ( "!" | "-" | "#" ) unary )
 				
 value            -> function ;
 
-function         -> "fn" "(" parameters? ")" block_stmt
+function         -> "fn" "(" parameters? ")" ( block_stmt | "=>" expression )
                   | map ;
 parameters       -> parameter ( "," parameter )* ;
 parameter        -> IDENTIFIER ( "=" value )? ;

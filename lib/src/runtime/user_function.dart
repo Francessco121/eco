@@ -18,6 +18,7 @@ class UserFunction implements Callable {
   UnmodifiableListView<FunctionParameter> _parametersView;
 
   final List<Statement> _body;
+  final Expression _expression;
   final Scope _closure;
   final String _name;
   final Interpreter _interpreter;
@@ -25,11 +26,13 @@ class UserFunction implements Callable {
   UserFunction({
     @required List<FunctionParameter> parameters,
     @required List<Statement> body,
+    @required Expression expression,
     @required Scope closure,
     @required String name,
     @required Interpreter interpreter
   })
     : _body = body,
+      _expression = expression,
       _closure = closure,
       _name = name,
       _interpreter = interpreter {
@@ -38,7 +41,7 @@ class UserFunction implements Callable {
   }
 
   @override
-  RuntimeValue call(Map<String, RuntimeValue> arguments) {
+  RuntimeValue call(_, Map<String, RuntimeValue> arguments) {
     // Create a new scope for the function body
     final scope = new Scope(_closure);
 
@@ -49,11 +52,15 @@ class UserFunction implements Callable {
     });
 
     // Execute the function body
-    try {
-      _interpreter.interpret(_body, scope);
-    } on Return catch (ex) {
-      // Function ended early with a return statement
-      return ex.value;
+    if (_body != null) {
+      try {
+        _interpreter.interpret(_body, scope);
+      } on Return catch (ex) {
+        // Function ended early with a return statement
+        return ex.value;
+      }
+    } else if (_expression != null) {
+      return _interpreter.interpretExpression(_expression, scope);
     }
 
     // Default to a null return value

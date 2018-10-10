@@ -8,6 +8,7 @@ import '../library_identifier.dart';
 import '../program.dart';
 import '../user_library.dart';
 import 'built_in_function_exception.dart';
+import 'call_context.dart';
 import 'callable.dart';
 import 'function_parameter.dart';
 import 'library_environment.dart';
@@ -34,6 +35,9 @@ abstract class Interpreter {
   /// Interprets the block of [statements] using the given [scope].
   void interpret(List<Statement> statements, Scope scope);
 
+  /// Interprets the [expression] using the given [scope].
+  RuntimeValue interpretExpression(Expression expression, Scope scope);
+
   factory Interpreter(Program program, UserLibrary library, LibraryEnvironment environment) {
     return _InterpreterBase(program, library, environment);
   }
@@ -50,9 +54,11 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
   StringBuffer _currentTagBuffer;
 
+  final CallContext _callContext;
   final Program _program;
 
-  _InterpreterBase(this._program, this.library, this.environment);
+  _InterpreterBase(this._program, this.library, this.environment)
+    : _callContext = CallContext(library, environment);
 
   @override
   void interpret(List<Statement> statements, Scope scope) {
@@ -71,6 +77,24 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
       // Revert scope
       _currentScope = previousScope;
     }
+  }
+
+  @override
+  RuntimeValue interpretExpression(Expression expression, Scope scope) {
+    // Save the current scope so we can restore it after
+    final Scope previousScope = _currentScope;
+
+    // Update the current scope
+    _currentScope = scope;
+
+    // Run the expression
+    final RuntimeValue result = _evaluate(expression);
+
+    // Revert scope
+    _currentScope = previousScope;
+
+    // All set
+    return result;
   }
 
   @override
@@ -279,12 +303,15 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
       // Run the callable
       try {
-        final RuntimeValue callableResult = callable.call(mappedArguments);
+        final RuntimeValue callableResult = callable.call(
+          _callContext,
+          mappedArguments
+        );
 
         // Restore tag buffer
         _currentTagBuffer = previousTagBuffer;
 
-        return callableResult;
+        return callableResult ?? RuntimeValue.fromNull();
       } on BuiltInFunctionException catch (ex) {
         // Convert built-in function exceptions
         _error(call.openParen, ex.message);
@@ -425,6 +452,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
           .map(_convertParameter)
           .toList(),
         body: functionExpression.body,
+        expression: functionExpression.expression,
         closure: _currentScope,
         name: null, // Anonymous functions don't have names,
         interpreter: this
@@ -439,6 +467,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
         .map(_convertParameter)
         .toList(),
       body: functionStatement.body,
+      expression: null,
       closure: _currentScope,
       name: functionStatement.name.lexeme,
       interpreter: this
@@ -459,7 +488,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     // Evaluate the get
     if (target.type == RuntimeValueType.map) {
       // map.key
-      return target.map[RuntimeValue.fromString($get.name.lexeme)];
+      return target.map[RuntimeValue.fromString($get.name.lexeme)]
+        ?? RuntimeValue.fromNull();
     } else if (target.type == RuntimeValueType.library) {
       // library.variable
       return target.library.publicScope.get($get.name);
@@ -549,7 +579,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     } else if (indexee.type == RuntimeValueType.map) {
       // Indexing a map
       if (index.type != RuntimeValueType.$null) {
-        return indexee.map[index];
+        return indexee.map[index] ?? RuntimeValue.fromNull();
       } else {
         _error(indexExpression.openBracket, 'Map index must not be null.');
       }

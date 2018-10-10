@@ -15,7 +15,7 @@ class AssertLibrary extends BuiltInLibrary {
   AssertLibrary() {
     // isTrue
     defineFunction(BuiltInFunction(
-      (args) {
+      (_, args) {
         final bool condition = parseBoolean(args, 'condition');
         final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
@@ -32,7 +32,7 @@ class AssertLibrary extends BuiltInLibrary {
 
     // isFalse
     defineFunction(BuiltInFunction(
-      (args) {
+      (_, args) {
         final bool condition = parseBoolean(args, 'condition');
         final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
@@ -49,7 +49,7 @@ class AssertLibrary extends BuiltInLibrary {
 
     // areEqual
     defineFunction(BuiltInFunction(
-      (args) {
+      (_, args) {
         final RuntimeValue expected = args['expected'];
         final RuntimeValue actual = args['actual'];
         final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
@@ -70,7 +70,7 @@ class AssertLibrary extends BuiltInLibrary {
 
     // isNull
     defineFunction(BuiltInFunction(
-      (args) {
+      (_, args) {
         final RuntimeValue obj = args['object'];
         final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
@@ -87,7 +87,7 @@ class AssertLibrary extends BuiltInLibrary {
 
     // isNotNull
     defineFunction(BuiltInFunction(
-      (args) {
+      (_, args) {
         final RuntimeValue obj = args['object'];
         final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
 

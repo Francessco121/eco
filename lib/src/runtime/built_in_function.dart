@@ -2,11 +2,12 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
+import 'call_context.dart';
 import 'callable.dart';
 import 'function_parameter.dart';
 import 'runtime_value.dart';
 
-typedef BuiltInFunctionCallback = RuntimeValue Function(Map<String, RuntimeValue> arguments);
+typedef BuiltInFunctionCallback = RuntimeValue Function(CallContext context, Map<String, RuntimeValue> arguments);
 
 /// An Eco function implemented in Dart.
 class BuiltInFunction implements Callable {
@@ -31,8 +32,8 @@ class BuiltInFunction implements Callable {
   }
 
   @override
-  RuntimeValue call(Map<String, RuntimeValue> arguments) {
-    return _callback(arguments);
+  RuntimeValue call(CallContext context, Map<String, RuntimeValue> arguments) {
+    return _callback(context, arguments);
   }
 
   @override

@@ -628,18 +628,29 @@ class _Parser {
         "Expected ')' to end function parameter list."
       );
 
-      // Parse body
-      _consume(TokenType.leftBrace,
-        "Expected '{' to begin function body."
-      );
+      List<Statement> body = null;
+      Expression expression = null;
 
-      final List<Statement> body = [];
+      if (_match(TokenType.arrow)) {
+        // Parse expression body
+        expression = _expression();
+      } else {
+        // Parse block body
+        _consume(TokenType.leftBrace,
+          "Expected '{' to begin function body."
+        );
 
-      while (!_match(TokenType.rightBrace)) {
-        body.add(_declaration());
+        body = [];
+
+        while (!_match(TokenType.rightBrace)) {
+          body.add(_declaration());
+        }
       }
 
-      return FunctionExpression(parameters, body);
+      return FunctionExpression(parameters, 
+        body: body, 
+        expression: expression
+      );
     }
 
     return _map();

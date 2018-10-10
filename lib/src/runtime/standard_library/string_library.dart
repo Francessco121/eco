@@ -14,7 +14,7 @@ class StringLibrary extends BuiltInLibrary {
   StringLibrary() {
     // byte
     defineFunction(BuiltInFunction(
-      (args) {
+      (_, args) {
         final String str = parseString(args, 'str');
         final int index = parseInteger(args, 'index');
 
@@ -36,7 +36,7 @@ class StringLibrary extends BuiltInLibrary {
 
     // sub
     defineFunction(BuiltInFunction(
-      (args) {
+      (_, args) {
         final String str = parseString(args, 'str');
         final int startIndex = parseInteger(args, 'startIndex');
         final int length = parseInteger(args, 'length');

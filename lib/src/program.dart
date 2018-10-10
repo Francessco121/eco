@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:meta/meta.dart';
+
 import 'parsing/parse_exception.dart';
 import 'runtime/standard_library/standard_library.dart';
 import 'runtime/built_in_library.dart';
@@ -83,9 +85,8 @@ class Program {
     _libraries[id] = library;
   }
 
-  Future<LibraryEnvironment> run(Source source, {
-    LibraryEnvironment environment
-  }) async {
+  @virtual
+  Future<LibraryEnvironment> run(Source source) async {
     // Cache the source
     _loadedSources[source.uri] = source;
 
@@ -100,14 +101,11 @@ class Program {
       throw ParseException(library.parseErrors);
     }
 
-    // Create an environment for the library if one
-    // wasn't specified.
-    if (environment == null) {
-      environment = new LibraryEnvironment();
+    // Create an environment
+    var environment = new LibraryEnvironment(library);
 
-      // Add implicit imports
-      _addImplicitImports(environment);
-    }
+    // Add implicit imports
+    _addImplicitImports(environment);
 
     // Run the library to finalize the environment
     library.run(this, environment);
@@ -159,7 +157,7 @@ class Program {
   }
 
   LibraryEnvironment _createEnvironment(Library library) {
-    final environment = new LibraryEnvironment();
+    final environment = new LibraryEnvironment(library);
 
     // Only add implicit imports for user libraries
     if (library is UserLibrary) {

@@ -134,12 +134,20 @@ class _Scanner {
       case $hash: _addToken(TokenType.hash); break;
       case $percent: _addToken(TokenType.percent); break;
       case $dot: _addToken(_match($dot) ? TokenType.dotDot : TokenType.dot); break;
-      case $equal: _addToken(_match($equal) ? TokenType.equalEqual : TokenType.equal); break;
       case $exclamation: _addToken(_match($equal) ? TokenType.bangEqual : TokenType.bang); break;
       case $greater_than: _addToken(_match($equal) ? TokenType.greaterEqual : TokenType.greater); break;
       case $less_than: _addToken(_match($equal) ? TokenType.lessEqual : TokenType.less); break;
       case $minus: _addToken(_match($minus) ? TokenType.minusMinus : TokenType.minus); break;
       case $plus: _addToken(_match($plus) ? TokenType.plusPlus : TokenType.plus); break;
+      case $equal:
+        if (_match($equal)) {
+          _addToken(TokenType.equalEqual);
+        } else if (_match($gt)) {
+          _addToken(TokenType.arrow);
+        } else {
+          _addToken(TokenType.equal);
+        }
+        break;
       case $slash:
         if (_match($slash)) {
           _singleLineComment();
