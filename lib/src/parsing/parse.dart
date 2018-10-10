@@ -571,6 +571,8 @@ class _Parser {
   List<Parameter> _parameters() {
     final List<Parameter> params = [];
 
+    bool optionalOnly = false;
+
     while (_check(TokenType.identifier)) {
       final Token identifier = _advance();
 
@@ -580,6 +582,14 @@ class _Parser {
       if (_check(TokenType.equal)) {
         equalSign = _advance();
         defaultValue = _value();
+
+        // After the first optional parameter, the remaining
+        // must also be optional.
+        optionalOnly = true;
+      } else if (optionalOnly) {
+        throw _error(identifier, 
+          'All required parameters must be before optional parameters.'
+        );
       }
 
       params.add(Parameter(identifier, equalSign, defaultValue));

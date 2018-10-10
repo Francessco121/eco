@@ -1,3 +1,4 @@
+import 'package:eco/eco.dart';
 import 'package:test/test.dart';
 
 import 'utils.dart';
@@ -23,6 +24,38 @@ void main() {
       ''');
     } on Exception catch (ex) {
       if (ex is RuntimeException) {
+        return;
+      }
+
+      rethrow;
+    }
+
+    fail('Test should have failed.');
+  });
+
+  test('optional parameters must be last', () async {
+    try {
+      await runScript('''
+        fn function(optional = null, required) { }
+      ''');
+    } on Exception catch (ex) {
+      if (ex is ParseException && ex.parseErrors.length == 1) {
+        return;
+      }
+
+      rethrow;
+    }
+
+    fail('Test should have failed.');
+  });
+
+  test('optional parameters must be last in anonymous function', () async {
+    try {
+      await runScript('''
+        function = fn (optional = null, required) { }
+      ''');
+    } on Exception catch (ex) {
+      if (ex is ParseException && ex.parseErrors.length == 1) {
         return;
       }
 
