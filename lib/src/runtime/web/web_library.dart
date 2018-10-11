@@ -88,7 +88,7 @@ class WebLibrary extends BuiltInLibrary {
       name: 'stack'
     ));
 
-    // renderStack
+    // drawStack
     defineFunction(BuiltInFunction(
       (context, args) {
         final String stackName = parseString(args, 'name');
@@ -117,10 +117,10 @@ class WebLibrary extends BuiltInLibrary {
       parameters: [
         FunctionParameter('name')
       ],
-      name: 'renderStack'
+      name: 'drawStack'
     ));
 
-    // renderView
+    // drawView
     defineFunction(BuiltInFunction(
       (context, args) {
         final View view = _viewCompiler.getView(context.callingLibrary);
@@ -135,10 +135,10 @@ class WebLibrary extends BuiltInLibrary {
         }
       },
       parameters: [],
-      name: 'renderView'
+      name: 'drawView'
     ));
 
-    // css
+    // makeStyle
     defineFunction(BuiltInFunction(
       (_, args) {
         final Map<RuntimeValue, RuntimeValue> map = parseMap(args, 'map');
@@ -163,10 +163,10 @@ class WebLibrary extends BuiltInLibrary {
       parameters: [
         FunctionParameter('map')
       ],
-      name: 'css'
+      name: 'makeStyle'
     ));
 
-    // classes
+    // makeClass
     defineFunction(BuiltInFunction(
       (_, args) {
         final Map<RuntimeValue, RuntimeValue> map = parseMap(args, 'map');
@@ -198,7 +198,7 @@ class WebLibrary extends BuiltInLibrary {
       parameters: [
         FunctionParameter('map')
       ],
-      name: 'classes'
+      name: 'makeClass'
     ));
   }
 }
