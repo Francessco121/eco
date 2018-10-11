@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:build/build.dart';
 import 'package:path/path.dart' as path;
 
-import 'eco.dart';
+import '../parsing/parse_exception.dart';
+import '../runtime/runtime_exception.dart';
+import '../source.dart';
+import '../source_resolver.dart';
+import '../view_compiler.dart';
 
-Builder viewBuilder(BuilderOptions options) {
-  return _ViewBuilder();
-}
-
-class _ViewBuilder implements Builder {
+class ViewBuilder implements Builder {
   @override
   final buildExtensions = {'.view.eco': ['.html']};
 
