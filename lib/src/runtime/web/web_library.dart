@@ -3,10 +3,10 @@ import '../built_in_function.dart';
 import '../built_in_function_exception.dart';
 import '../built_in_library.dart';
 import '../callable.dart';
-import '../call_context.dart';
 import '../function_parameter.dart';
 import '../library_environment.dart';
 import '../runtime_value.dart';
+import '../runtime_value_type.dart';
 import 'view.dart';
 
 class WebLibrary extends BuiltInLibrary {
@@ -136,6 +136,69 @@ class WebLibrary extends BuiltInLibrary {
       },
       parameters: [],
       name: 'renderView'
+    ));
+
+    // css
+    defineFunction(BuiltInFunction(
+      (_, args) {
+        final Map<RuntimeValue, RuntimeValue> map = parseMap(args, 'map');
+
+        final buffer = new StringBuffer();
+
+        map.forEach((key, value) {
+          if (value.type != RuntimeValueType.$null) {
+            if (buffer.length > 0) {
+              buffer.write(' ');
+            }
+
+            buffer.write(key);
+            buffer.write(': ');
+            buffer.write(value);
+            buffer.write(';');
+          }
+        });
+
+        return RuntimeValue.fromString(buffer.toString());
+      },
+      parameters: [
+        FunctionParameter('map')
+      ],
+      name: 'css'
+    ));
+
+    // classes
+    defineFunction(BuiltInFunction(
+      (_, args) {
+        final Map<RuntimeValue, RuntimeValue> map = parseMap(args, 'map');
+
+        final buffer = new StringBuffer();
+        int pair = 0;
+
+        map.forEach((className, condition) {
+          if (condition.type != RuntimeValueType.boolean) {
+            throw BuiltInFunctionException(
+              "Expected pair #$pair's value to evaluate to a boolean "
+              'but got ${condition.toTypeString()}.'
+            );
+          }
+
+          if (condition.boolean) {
+            if (pair > 0) {
+              buffer.write(' ');
+            }
+
+            buffer.write(className);
+          }
+
+          pair++;
+        });
+
+        return RuntimeValue.fromString(buffer.toString());
+      },
+      parameters: [
+        FunctionParameter('map')
+      ],
+      name: 'classes'
     ));
   }
 }

@@ -28,26 +28,12 @@ class ObjectLibrary extends BuiltInLibrary {
       (_, args) {
         final RuntimeValue arg = args['object'];
 
-        return RuntimeValue.fromString(_typeOfValue(arg));
+        return RuntimeValue.fromString(arg.toTypeString());
       },
       parameters: [
         FunctionParameter('object')
       ],
       name: 'typeOf'
     ));
-  }
-
-  String _typeOfValue(RuntimeValue value) {
-    switch (value.type) {
-      case RuntimeValueType.$null: return 'null';
-      case RuntimeValueType.boolean: return 'boolean';
-      case RuntimeValueType.function: return 'function';
-      case RuntimeValueType.library: return 'library';
-      case RuntimeValueType.list: return 'list';
-      case RuntimeValueType.map: return 'map';
-      case RuntimeValueType.number: return 'number';
-      case RuntimeValueType.string: return 'string';
-      default: throw UnimplementedError();
-    }
   }
 }

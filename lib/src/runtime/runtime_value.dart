@@ -103,6 +103,20 @@ class RuntimeValue {
     }
   }
 
+  String toTypeString() {
+    switch (type) {
+      case RuntimeValueType.$null: return 'null';
+      case RuntimeValueType.boolean: return 'boolean';
+      case RuntimeValueType.function: return 'function';
+      case RuntimeValueType.library: return 'library';
+      case RuntimeValueType.list: return 'list';
+      case RuntimeValueType.map: return 'map';
+      case RuntimeValueType.number: return 'number';
+      case RuntimeValueType.string: return 'string';
+      default: throw UnimplementedError();
+    }
+  }
+
   String _numberToString(double number) {
     if (number.truncate() == number) {
       return number.toInt().toString();
