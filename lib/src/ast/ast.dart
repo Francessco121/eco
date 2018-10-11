@@ -12,6 +12,7 @@ export 'expression_statement.dart';
 export 'expression_visitor.dart';
 export 'for_statement.dart';
 export 'foreach_statement.dart';
+export 'function_body.dart';
 export 'function_expression.dart';
 export 'function_statement.dart';
 export 'get_expression.dart';

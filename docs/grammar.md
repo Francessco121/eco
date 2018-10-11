@@ -6,7 +6,7 @@ program          -> declaration* EOF ;
 declaration      -> import_decl | function_decl | var_decl | statement ;
 
 import_decl      -> "import" STRING "as" IDENTIFIER ;
-function_decl    -> "pub"? "fn" IDENTIFIER "(" parameters? ")" block_stmt ;
+function_decl    -> "pub"? "fn" IDENTIFIER "(" parameters? ")" ( block_stmt | "=>" expression ";" ) ;
 var_decl         -> "pub"? "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement        -> block_stmt | break_stmt | continue_stmt | expr_stmt | for_stmt | foreach_stmt 

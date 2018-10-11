@@ -452,7 +452,6 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
           .map(_convertParameter)
           .toList(),
         body: functionExpression.body,
-        expression: functionExpression.expression,
         closure: _currentScope,
         name: null, // Anonymous functions don't have names,
         interpreter: this
@@ -467,7 +466,6 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
         .map(_convertParameter)
         .toList(),
       body: functionStatement.body,
-      expression: null,
       closure: _currentScope,
       name: functionStatement.name.lexeme,
       interpreter: this

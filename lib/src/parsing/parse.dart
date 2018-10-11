@@ -124,12 +124,29 @@ class _Parser {
     final List<Parameter> parameters = _parameters();
 
     _consume(TokenType.rightParen, "Expected ')' to end function parameter list.");
-    _consume(TokenType.leftBrace, "Expected '{' to begin function body.");
 
-    final List<Statement> body = [];
+    // Parse the function body
+    FunctionBody body;
 
-    while (!_match(TokenType.rightBrace)) {
-      body.add(_declaration());
+    if (_match(TokenType.arrow)) {
+      // Parse expression body
+      body = FunctionBody.fromExpression(_expression());
+
+      // Consume ';'
+      _consume(TokenType.semicolon, "Expected ';' after function expression body.");
+    } else {
+      // Parse block body
+      _consume(TokenType.leftBrace,
+        "Expected '{' to begin function body."
+      );
+
+      List<Statement> statements = [];
+
+      while (!_match(TokenType.rightBrace)) {
+        statements.add(_declaration());
+      }
+
+      body = FunctionBody.fromBlock(statements);
     }
 
     return FunctionStatement(identifier, parameters, body, publicKeyword: publicKeyword);
@@ -628,29 +645,28 @@ class _Parser {
         "Expected ')' to end function parameter list."
       );
 
-      List<Statement> body = null;
-      Expression expression = null;
+      // Parse the function body
+      FunctionBody body;
 
       if (_match(TokenType.arrow)) {
         // Parse expression body
-        expression = _expression();
+        body = FunctionBody.fromExpression(_expression());
       } else {
         // Parse block body
         _consume(TokenType.leftBrace,
           "Expected '{' to begin function body."
         );
 
-        body = [];
+        List<Statement> statements = [];
 
         while (!_match(TokenType.rightBrace)) {
-          body.add(_declaration());
+          statements.add(_declaration());
         }
+
+        body = FunctionBody.fromBlock(statements);
       }
 
-      return FunctionExpression(parameters, 
-        body: body, 
-        expression: expression
-      );
+      return FunctionExpression(parameters, body);
     }
 
     return _map();

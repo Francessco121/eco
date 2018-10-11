@@ -17,22 +17,19 @@ class UserFunction implements Callable {
 
   UnmodifiableListView<FunctionParameter> _parametersView;
 
-  final List<Statement> _body;
-  final Expression _expression;
+  final FunctionBody _body;
   final Scope _closure;
   final String _name;
   final Interpreter _interpreter;
 
   UserFunction({
     @required List<FunctionParameter> parameters,
-    @required List<Statement> body,
-    @required Expression expression,
+    @required FunctionBody body,
     @required Scope closure,
     @required String name,
     @required Interpreter interpreter
   })
     : _body = body,
-      _expression = expression,
       _closure = closure,
       _name = name,
       _interpreter = interpreter {
@@ -52,15 +49,17 @@ class UserFunction implements Callable {
     });
 
     // Execute the function body
-    if (_body != null) {
+    if (_body.block != null) {
+      // Block body
       try {
-        _interpreter.interpret(_body, scope);
+        _interpreter.interpret(_body.block, scope);
       } on Return catch (ex) {
         // Function ended early with a return statement
         return ex.value;
       }
-    } else if (_expression != null) {
-      return _interpreter.interpretExpression(_expression, scope);
+    } else if (_body.expression != null) {
+      // Expression body
+      return _interpreter.interpretExpression(_body.expression, scope);
     }
 
     // Default to a null return value
