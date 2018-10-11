@@ -2,7 +2,6 @@ import '../built_in_function.dart';
 import '../built_in_library.dart';
 import '../function_parameter.dart';
 import '../runtime_value.dart';
-import '../runtime_value_type.dart';
 
 class ObjectLibrary extends BuiltInLibrary {
   @override
