@@ -8,6 +8,7 @@ enum TokenType {
   rightBrace,
   semicolon,
   colon,
+  colonColon,
   comma,
   dot,
   dotDot,
@@ -29,6 +30,8 @@ enum TokenType {
   hash,
   percent,
   arrow,
+  at,
+  leftArrow,
 
   // Literals
   identifier,
@@ -56,9 +59,6 @@ enum TokenType {
   $false,
   public,
   html,
-  tag,
-  $with,
-  write,
 
   // End-of-file
   eof

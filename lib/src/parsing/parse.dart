@@ -185,8 +185,8 @@ class _Parser {
       case TokenType.$if: return _if();
       case TokenType.$return: return _return();
       case TokenType.$while: return _while();
-      case TokenType.write: return _write();
-      case TokenType.tag: return _tag();
+      case TokenType.leftArrow: return _write();
+      case TokenType.at: return _tag();
       default:
         return _expressionStatement();
     }
@@ -382,7 +382,7 @@ class _Parser {
   }
 
   WriteStatement _write() {
-    // Consume 'write'
+    // Consume '<:'
     final Token keyword = _advance();
 
     // Parse expression
@@ -395,17 +395,17 @@ class _Parser {
   }
 
   TagStatement _tag() {
-    // Consume 'tag'
+    // Consume '@'
     final Token keyword = _advance();
 
     // Parse tag name
     final Token tagName = _consume(TokenType.string, 
-      "Expected tag name as a string after 'tag'."
+      "Expected tag name as a string after '@'."
     );
 
     // Parse optional 'with' clause
     WithClause withClause = null;
-    if (_check(TokenType.$with)) {
+    if (_check(TokenType.colonColon)) {
       withClause = _withClause();
     }
 
@@ -426,7 +426,7 @@ class _Parser {
   }
 
   WithClause _withClause() {
-    // Consume 'with'
+    // Consume '::'
     final Token keyword = _advance();
 
     // Parse attributes

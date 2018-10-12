@@ -30,10 +30,7 @@ const Map<String, TokenType> _keywords = {
   'true': TokenType.$true,
   'false': TokenType.$false,
   'pub': TokenType.public,
-  'html': TokenType.html,
-  'tag': TokenType.tag,
-  'with': TokenType.$with,
-  'write': TokenType.write
+  'html': TokenType.html
 };
 
 /// Scans the Eco [source] into a list of [Token]s.
@@ -127,18 +124,27 @@ class _Scanner {
       case $lbrace: _addToken(TokenType.leftBrace); break;
       case $rbrace: _addToken(TokenType.rightBrace); break;
       case $semicolon: _addToken(TokenType.semicolon); break;
-      case $colon: _addToken(TokenType.colon); break;
       case $comma: _addToken(TokenType.comma); break;
       case $question: _addToken(TokenType.question); break;
       case $asterisk: _addToken(TokenType.star); break;
       case $hash: _addToken(TokenType.hash); break;
       case $percent: _addToken(TokenType.percent); break;
+      case $at: _addToken(TokenType.at); break;
+      case $colon: _addToken(_match($colon) ? TokenType.colonColon : TokenType.colon); break;
       case $dot: _addToken(_match($dot) ? TokenType.dotDot : TokenType.dot); break;
       case $exclamation: _addToken(_match($equal) ? TokenType.bangEqual : TokenType.bang); break;
       case $greater_than: _addToken(_match($equal) ? TokenType.greaterEqual : TokenType.greater); break;
-      case $less_than: _addToken(_match($equal) ? TokenType.lessEqual : TokenType.less); break;
       case $minus: _addToken(_match($minus) ? TokenType.minusMinus : TokenType.minus); break;
       case $plus: _addToken(_match($plus) ? TokenType.plusPlus : TokenType.plus); break;
+      case $less_than:
+        if (_match($colon)) {
+          _addToken(TokenType.leftArrow);
+        } else if (_match($equal)) {
+          _addToken(TokenType.lessEqual);
+        } else {
+          _addToken(TokenType.less);
+        }
+        break;
       case $equal:
         if (_match($equal)) {
           _addToken(TokenType.equalEqual);
