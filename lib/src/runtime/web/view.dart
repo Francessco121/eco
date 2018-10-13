@@ -1,32 +1,66 @@
-import '../callable.dart';
+import '../../library.dart';
 import '../runtime_value.dart';
 
-// TODO: clean up layoutValuesCallback
-
 class View {
-  /// The parent view or `null` if this is a root view.
-  View get parent => _parent;
+  /// A path to this view's parent or `null` if this is a top-level view.
+  String parentViewPath;
 
-  Callable get layoutValuesCallback => _layoutValuesCallback;
+  /// The model that should be passed to this view's parent or `null` if
+  /// the view never specified a model.
+  RuntimeValue parentModel;
 
-  /// The child view or `null` if this is a starting view.
+  /// This view's child or `null` if this is an entry view.
   View child;
 
-  /// The callback to generate the view content or `null` if the view
-  /// never set it.
-  Callable contentCallback;
+  /// The compiled HTML content of the view or `null` if the view never
+  /// specified its output content.
+  String content;
 
   /// A map of all stack entries by name to their view content.
   final Map<String, String> stackViews = {};
 
-  View _parent;
-  Callable _layoutValuesCallback;
+  /// The library which created this view.
+  final Library library;
 
-  /// Sets this view to have the given [parent], giving it the given [callback].
-  void setParent(View parent, Callable callback) {
-    if (parent == null) throw ArgumentError.notNull('parent');
+  View(this.library) {
+    if (library == null) throw ArgumentError.notNull('library');
+  }
 
-    _parent = parent;
-    _layoutValuesCallback = callback;
+  /// Returns a descendant view with the given [uri] or `null`
+  /// if no descendant is from that `uri`.
+  View getDescendant(Uri uri) {
+    View child = this.child;
+
+    while (child != null) {
+      if (child.library.uri == uri) {
+        return child;
+      }
+
+      child = child.child;
+    }
+
+    return null;
+  }
+
+  /// Returns a list of descendants.
+  /// 
+  /// If [untilUri] is specified, only descendants up to and including
+  /// that URI will be returned.
+  List<View> getDescendants({Uri untilUri}) {
+    final List<View> descendants = [];
+
+    View child = this.child;
+
+    while (child != null) {
+      descendants.add(child);
+
+      if (untilUri != null && child.library.uri == untilUri) {
+        break;
+      }
+
+      child = child.child;
+    }
+
+    return descendants;
   }
 }

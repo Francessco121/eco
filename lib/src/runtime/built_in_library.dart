@@ -28,6 +28,9 @@ abstract class BuiltInLibrary implements Library {
   /// implicitly imported as `import 'eco:math' as Math;`.
   String get defaultImportIdentifier;
 
+  @override
+  Uri get uri => Uri(scheme: 'eco', path: id);
+
   final Map<String, RuntimeValue> _variables = {};
 
   @override

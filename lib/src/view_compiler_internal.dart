@@ -1,16 +1,20 @@
 import 'dart:async';
+import 'dart:collection';
 
+import 'package:meta/meta.dart';
+import 'package:source_span/source_span.dart';
+
+import 'parsing/parse_error.dart';
+import 'parsing/parse_exception.dart';
 import 'runtime/standard_library/standard_library.dart';
 import 'runtime/web/view.dart';
 import 'runtime/web/web_library.dart';
-import 'runtime/call_context.dart';
-import 'runtime/callable.dart';
 import 'runtime/library_environment.dart';
-import 'runtime/runtime_value.dart';
 import 'library.dart';
 import 'program.dart';
 import 'source.dart';
 import 'source_resolver.dart';
+import 'source_tree.dart';
 import 'view_compiler.dart';
 
 class ViewCompilerInternal implements ViewCompiler {
@@ -40,26 +44,28 @@ class ViewCompilerInternal implements ViewCompiler {
     final View view = _views[result.library];
 
     if (view != null) {
-      // Find the root view
-      //
-      // We must build the view from the ground up, rather than
-      // from the starting view.
       View finalView = view;
-      while (finalView.parent != null) {
-        finalView = finalView.parent;
+
+      // Keep processing views until we have reached a root view
+      while (finalView.parentViewPath != null) {
+        // Load the parent view
+        final Source parentSource = await _loadParentViewSource(finalView);
+
+        final SourceTreeNode treeNode = program.sourceTree.addRoot(parentSource.uri);
+        final Library parentLibrary = await program.loadUserLibrary(parentSource, treeNode);
+
+        // Create the view data ahead of time and set the child to the current 'final view'
+        final View parentView = getView(parentLibrary);
+        parentView.child = finalView;
+
+        // Run the parent view
+        program.loadEnvironment(parentLibrary);
+
+        // Continue using the parent view as the new 'final view'
+        finalView = parentView;
       }
 
-      // Build the view
-      final Callable contentCallback = finalView.contentCallback;
-
-      if (contentCallback != null) {
-        final RuntimeValue viewResult = contentCallback.call(
-          CallContext(result.library, result), 
-          {}
-        );
-
-        return viewResult.toString();
-      }
+      return finalView.content;
     }
     
     // No view was created...
@@ -71,10 +77,80 @@ class ViewCompilerInternal implements ViewCompiler {
     View view = _views[library];
 
     if (view == null) {
-      view = new View();
+      view = new View(library);
       _views[library] = view;
     }
 
     return view;
+  }
+
+  Future<Source> _loadParentViewSource(View fromView) async {
+    // Resolve a path to the parent view
+    final Uri uri = program.sourceResolver.resolvePath(
+      fromView.parentViewPath,
+      fromView.library.uri
+    );
+
+    // Ensure the view isn't inheriting itself
+    if (uri == fromView.library.uri) {
+      _throwParseError(fromView.library.uri, 
+        'View cannot inherit itself. Uri: $uri'
+      );
+    }
+
+    // Load the source
+    final Source source = await program.loadSource(uri);
+
+    if (source == null) {
+      _throwParseError(fromView.library.uri, 
+        'Could not find view to inherit from path: $uri'
+      );
+    }
+
+    // Check for cyclic inheritance
+    final View cyclicChild = fromView.getDescendant(uri);
+    if (cyclicChild != null) {
+      _throwCyclicInheritanceError(fromView, cyclicChild);
+    }
+
+    return source;
+  }
+
+  @alwaysThrows
+  void _throwCyclicInheritanceError(View view, View cyclicChild) {
+    final buffer = StringBuffer();
+    buffer.writeln('Inheritance would result in cyclic dependencies because');
+
+    final Iterable<View> descendants = view
+      .getDescendants(untilUri: cyclicChild.library.uri);
+
+    bool first = true;
+    for (final View descendant in descendants) {
+      if (first) {
+        buffer.write('the view ');
+        first = false;
+      } else {
+        buffer.writeln(',');
+        buffer.write('which ');
+      }
+
+      buffer.write('is inherited from ${descendant.library.uri}');
+    }
+
+    buffer.write('.');
+
+    _throwParseError(view.library.uri, buffer.toString());
+  }
+
+  @alwaysThrows
+  void _throwParseError(Uri fileUri, String message) {
+    final location = SourceLocation(0, sourceUrl: fileUri);
+
+    final error = ParseError(
+      SourceSpan(location, location, ''),
+      message
+    );
+
+    throw ParseException(UnmodifiableListView([error]));
   }
 }

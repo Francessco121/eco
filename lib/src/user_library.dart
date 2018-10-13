@@ -17,6 +17,9 @@ import 'program.dart';
 import 'source_tree.dart';
 
 class UserLibrary implements Library {
+  @override
+  final Uri uri;
+
   final UnmodifiableListView<Statement> statements;
 
   final UnmodifiableMapView<Expression, int> locals;
@@ -26,6 +29,7 @@ class UserLibrary implements Library {
   final UnmodifiableListView<ParseError> parseErrors;
 
   UserLibrary._({
+    @required this.uri,
     @required this.statements,
     @required this.locals,
     @required this.publicVariables,
@@ -68,6 +72,7 @@ class UserLibrary implements Library {
       ..addAll(resolveResult.errors);
 
     return UserLibrary._(
+      uri: sourceSpan.sourceUrl,
       statements: parseResult.statements,
       locals: resolveResult.locals,
       publicVariables: resolveResult.publicVariables,

@@ -2,9 +2,7 @@ import '../../view_compiler_internal.dart';
 import '../built_in_function.dart';
 import '../built_in_function_exception.dart';
 import '../built_in_library.dart';
-import '../callable.dart';
 import '../function_parameter.dart';
-import '../library_environment.dart';
 import '../runtime_value.dart';
 import '../runtime_value_type.dart';
 import 'view.dart';
@@ -19,37 +17,34 @@ class WebLibrary extends BuiltInLibrary {
   final ViewCompilerInternal _viewCompiler;
 
   WebLibrary(this._viewCompiler) {
-    // layout
+    // getModel
     defineFunction(BuiltInFunction(
       (context, args) {
         final View view = _viewCompiler.getView(context.callingLibrary);
         
-        if (view.child != null && view.child.layoutValuesCallback != null) {
-          return view.child.layoutValuesCallback.call(context, {}) 
-            ?? RuntimeValue.fromNull();
+        if (view.child != null && view.child.parentModel != null) {
+          return view.child.parentModel;
         } else {
           return RuntimeValue.fromNull();
         }
       },
       parameters: [],
-      name: 'layout'
+      name: 'getModel'
     ));
 
     // inherit
     defineFunction(BuiltInFunction(
       (context, args) {
-        final LibraryEnvironment library = parseLibrary(args, 'library');
-        final Callable callback = parseFunction(args, 'callback', allowNull: true);
+        final String parentViewPath = parseString(args, 'path');
+        final RuntimeValue model = args['model'];
         
         final View view = _viewCompiler.getView(context.callingLibrary);
-        final View inherittedView = _viewCompiler.getView(library.library);
-
-        view.setParent(inherittedView, callback);
-        inherittedView.child = view;
+        view.parentViewPath = parentViewPath;
+        view.parentModel = model;
       },
       parameters: [
-        FunctionParameter('library'),
-        FunctionParameter('callback', defaultValue: RuntimeValue.fromNull())
+        FunctionParameter('path'),
+        FunctionParameter('model', defaultValue: RuntimeValue.fromNull())
       ],
       name: 'inherit'
     ));
@@ -57,13 +52,13 @@ class WebLibrary extends BuiltInLibrary {
     // view
     defineFunction(BuiltInFunction(
       (context, args) {
-        final Callable callback = parseFunction(args, 'callback');
+        final String content = parseString(args, 'content');
 
         final View view = _viewCompiler.getView(context.callingLibrary);
-        view.contentCallback = callback;
+        view.content = content;
       },
       parameters: [
-        FunctionParameter('callback')
+        FunctionParameter('content')
       ],
       name: 'view'
     ));
@@ -122,11 +117,8 @@ class WebLibrary extends BuiltInLibrary {
       (context, args) {
         final View view = _viewCompiler.getView(context.callingLibrary);
 
-        if (view.child != null && view.child.contentCallback != null) {
-          final Callable contentCallback = view.child.contentCallback;
-          final RuntimeValue viewResult = contentCallback.call(context, {});
-
-          return RuntimeValue.fromString(viewResult.toString());
+        if (view.child != null && view.child.content != null) {
+          return RuntimeValue.fromString(view.child.content);
         } else {
           return RuntimeValue.fromString('');
         }
