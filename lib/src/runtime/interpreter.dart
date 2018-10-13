@@ -4,7 +4,6 @@ import '../ast/ast.dart';
 import '../parsing/token.dart';
 import '../parsing/token_type.dart';
 import '../library.dart';
-import '../library_identifier.dart';
 import '../program.dart';
 import '../user_library.dart';
 import 'built_in_function_exception.dart';
@@ -540,8 +539,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   @override
   void visitImport(ImportStatement $import) {
     // Get the imported library
-    final LibraryIdentifier importedLibraryId = library.imports[$import];
-    final Library importedLibrary = _program.libraries[importedLibraryId];
+    final Uri importedLibraryUri = library.imports[$import];
+    final Library importedLibrary = _program.libraries[importedLibraryUri];
   
     // Load the library's environment for the program
     final LibraryEnvironment importedEnvironment = 

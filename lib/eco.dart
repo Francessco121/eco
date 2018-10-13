@@ -21,7 +21,6 @@ export 'src/runtime/runtime_value_type.dart';
 export 'src/runtime/scope.dart';
 
 // Common
-export 'src/library_identifier.dart';
 export 'src/library.dart';
 export 'src/program.dart';
 export 'src/source_resolver.dart';

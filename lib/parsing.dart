@@ -13,7 +13,6 @@ export 'src/parsing/token.dart';
 export 'src/parsing/token_type.dart';
 
 // Common
-export 'src/library_identifier.dart';
 export 'src/library.dart';
 export 'src/program.dart';
 export 'src/source_resolver.dart';

@@ -19,7 +19,6 @@ export 'src/runtime/scope.dart';
 export 'src/runtime/user_function.dart';
 
 // Common
-export 'src/library_identifier.dart';
 export 'src/library.dart';
 export 'src/program.dart';
 export 'src/source_resolver.dart';

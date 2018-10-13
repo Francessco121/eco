@@ -12,7 +12,6 @@ import 'parsing/scan.dart';
 import 'runtime/interpreter.dart';
 import 'runtime/library_environment.dart';
 import 'library.dart';
-import 'library_identifier.dart';
 import 'program.dart';
 import 'source_tree.dart';
 
@@ -24,7 +23,7 @@ class UserLibrary implements Library {
 
   final UnmodifiableMapView<Expression, int> locals;
   final UnmodifiableListView<String> publicVariables;
-  final UnmodifiableMapView<ImportStatement, LibraryIdentifier> imports;
+  final UnmodifiableMapView<ImportStatement, Uri> imports;
 
   final UnmodifiableListView<ParseError> parseErrors;
 

@@ -9,7 +9,6 @@ import 'runtime/built_in_library.dart';
 import 'runtime/library_environment.dart';
 import 'runtime/runtime_value.dart';
 import 'library.dart';
-import 'library_identifier.dart';
 import 'source.dart';
 import 'source_resolver.dart';
 import 'source_tree.dart';
@@ -26,7 +25,7 @@ class Program {
   UnmodifiableListView<String> get implicitImports => _implicitImportsView;
 
   /// A map of all libraries that have been loaded by this program.
-  UnmodifiableMapView<LibraryIdentifier, Library> get libraries => _librariesView;
+  UnmodifiableMapView<Uri, Library> get libraries => _librariesView;
 
   /// The resolver used to load sources.
   final SourceResolver sourceResolver;
@@ -36,14 +35,14 @@ class Program {
 
   UnmodifiableMapView<String, BuiltInLibrary> _builtInLibrariesView;
   UnmodifiableListView<String> _implicitImportsView;
-  UnmodifiableMapView<LibraryIdentifier, Library> _librariesView;
+  UnmodifiableMapView<Uri, Library> _librariesView;
 
   final Map<String, BuiltInLibrary> _builtInLibraries = {};
   final List<String> _implicitImports = [];
   final Map<Uri, Source> _loadedSources = {};
   final Map<Source, UserLibrary> _cachedUserLibraries = {};
   final Map<Library, LibraryEnvironment> _cachedEnvironments = {};
-  final Map<LibraryIdentifier, Library> _libraries = {};
+  final Map<Uri, Library> _libraries = {};
 
   Program({
     SourceResolver sourceResolver,
@@ -80,9 +79,9 @@ class Program {
       _implicitImports.add(library.id);
     }
 
-    final id = new LibraryIdentifier.forBuiltInLibrary(library.id);
+    final uri = new Uri(scheme: 'eco', path: library.id);
 
-    _libraries[id] = library;
+    _libraries[uri] = library;
   }
 
   @virtual
@@ -135,10 +134,7 @@ class Program {
       library = await UserLibrary.create(this, treeNode, source.sourceSpan);
 
       _cachedUserLibraries[source] = library;
-
-      final id = new LibraryIdentifier.forUserLibrary(source.uri);
-
-      _libraries[id] = library;
+      _libraries[source.uri] = library;
     }
 
     return library;

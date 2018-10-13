@@ -4,7 +4,6 @@ import 'dart:collection';
 import 'package:meta/meta.dart';
 
 import '../ast/ast.dart';
-import '../library_identifier.dart';
 import '../program.dart';
 import '../source.dart';
 import '../source_tree.dart';
@@ -41,7 +40,7 @@ Future<ResolveResult> resolve(
 
 class _ImportResolveResult {
   final List<ParseError> parseErrors;
-  final Map<ImportStatement, LibraryIdentifier> imports;
+  final Map<ImportStatement, Uri> imports;
 
   _ImportResolveResult(this.parseErrors, this.imports);
 }
@@ -52,7 +51,7 @@ Future<_ImportResolveResult> _resolveImports(
   List<ImportStatement> imports
 ) async {
   final List<ParseError> errors = [];
-  final Map<ImportStatement, LibraryIdentifier> resolvedImports = {};
+  final Map<ImportStatement, Uri> resolvedImports = {};
 
   for (final ImportStatement $import in imports) {
     final String importPath = $import.path.literal;
@@ -68,7 +67,7 @@ Future<_ImportResolveResult> _resolveImports(
       }
 
       // Mark this import as resolved
-      resolvedImports[$import] = new LibraryIdentifier.forBuiltInLibrary(id);
+      resolvedImports[$import] = new Uri(scheme: 'eco', path: id);
     } else {
       // Load the import source
       final Uri importUri = program.sourceResolver.resolvePath(importPath, sourceTreeNode.uri);
@@ -109,7 +108,7 @@ Future<_ImportResolveResult> _resolveImports(
       }
 
       // Mark this import as resolved
-      resolvedImports[$import] = new LibraryIdentifier.forUserLibrary(importUri);
+      resolvedImports[$import] = importUri;
     }
   }
 
@@ -143,7 +142,7 @@ class ResolveResult {
   final UnmodifiableListView<ParseError> errors;
   final UnmodifiableMapView<Expression, int> locals;
   final UnmodifiableListView<String> publicVariables;
-  final UnmodifiableMapView<ImportStatement, LibraryIdentifier> imports;
+  final UnmodifiableMapView<ImportStatement, Uri> imports;
 
   ResolveResult({
     @required this.errors,
