@@ -22,19 +22,16 @@ class WebLibrary extends BuiltInLibrary {
     // layout
     defineFunction(BuiltInFunction(
       (context, args) {
-        final RuntimeValue key = args['key'];
-
         final View view = _viewCompiler.getView(context.callingLibrary);
         
-        if (view.child != null && view.child.layoutValues != null) {
-          return view.child.layoutValues[key] ?? RuntimeValue.fromNull();
+        if (view.child != null && view.child.layoutValuesCallback != null) {
+          return view.child.layoutValuesCallback.call(context, {}) 
+            ?? RuntimeValue.fromNull();
         } else {
           return RuntimeValue.fromNull();
         }
       },
-      parameters: [
-        FunctionParameter('key')
-      ],
+      parameters: [],
       name: 'layout'
     ));
 
@@ -42,17 +39,17 @@ class WebLibrary extends BuiltInLibrary {
     defineFunction(BuiltInFunction(
       (context, args) {
         final LibraryEnvironment library = parseLibrary(args, 'library');
-        final Map<RuntimeValue, RuntimeValue> values = parseMap(args, 'values', allowNull: true);
+        final Callable callback = parseFunction(args, 'callback', allowNull: true);
         
         final View view = _viewCompiler.getView(context.callingLibrary);
         final View inherittedView = _viewCompiler.getView(library.library);
 
-        view.setParent(inherittedView, values);
+        view.setParent(inherittedView, callback);
         inherittedView.child = view;
       },
       parameters: [
         FunctionParameter('library'),
-        FunctionParameter('values', defaultValue: RuntimeValue.fromNull())
+        FunctionParameter('callback', defaultValue: RuntimeValue.fromNull())
       ],
       name: 'inherit'
     ));
