@@ -484,7 +484,7 @@ class _Parser {
   }
 
   Expression _ternary() {
-    final Expression expression = _concatenation();
+    final Expression expression = _nullCoalesce();
 
     if (_check(TokenType.question)) {
       final Token questionMark = _advance();
@@ -506,6 +506,20 @@ class _Parser {
       );
     }
 
+    return expression;
+  }
+
+  Expression _nullCoalesce() {
+    final Expression expression = _concatenation();
+
+    if (_check(TokenType.questionQuestion)) {
+      final Token symbol = _advance();
+
+      final Expression right = _expression();
+
+      return NullCoalesceExpression(expression, right, symbol);
+    }
+    
     return expression;
   }
 

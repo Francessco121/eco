@@ -650,6 +650,17 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   }
 
   @override
+  RuntimeValue visitNullCoalesce(NullCoalesceExpression nullCoalesce) {
+    final RuntimeValue leftValue = _evaluate(nullCoalesce.left);
+
+    if (leftValue.type == RuntimeValueType.$null) {
+      return _evaluate(nullCoalesce.right);
+    } else {
+      return leftValue;
+    }
+  }
+
+  @override
   void visitReturn(ReturnStatement $return) {
     // Evaluate return value if present
     RuntimeValue value;

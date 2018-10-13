@@ -33,7 +33,9 @@ expression       -> assignment ;
 assignment       -> ( IDENTIFIER | value ( get | index ) ) "=" expression 
                   | ternary_expr ;
 
-ternary_expr     -> concatenation ( "?" expression ":" expression )? ;
+ternary_expr     -> null_coalesce ( "?" expression ":" expression )? ;
+
+null_coalesce    -> concatenation ( "??" expression )? ;
 
 concatenation    -> logic_or ( ".." logic_or )* ;
 

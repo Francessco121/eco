@@ -366,6 +366,12 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   }
 
   @override
+  void visitNullCoalesce(NullCoalesceExpression nullCoalesce) {
+    _resolveExpression(nullCoalesce.left);
+    _resolveExpression(nullCoalesce.right);
+  }
+
+  @override
   void visitReturn(ReturnStatement $return) {
     if (!_inFunction) {
       _addError($return.keyword, 'Cannot return outside of a function.');

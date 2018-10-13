@@ -13,6 +13,7 @@ enum TokenType {
   dot,
   dotDot,
   question,
+  questionQuestion,
   equal,
   equalEqual,
   bang,

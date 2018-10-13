@@ -125,11 +125,11 @@ class _Scanner {
       case $rbrace: _addToken(TokenType.rightBrace); break;
       case $semicolon: _addToken(TokenType.semicolon); break;
       case $comma: _addToken(TokenType.comma); break;
-      case $question: _addToken(TokenType.question); break;
       case $asterisk: _addToken(TokenType.star); break;
       case $hash: _addToken(TokenType.hash); break;
       case $percent: _addToken(TokenType.percent); break;
       case $at: _addToken(TokenType.at); break;
+      case $question: _addToken(_match($question) ? TokenType.questionQuestion : TokenType.question); break;
       case $colon: _addToken(_match($colon) ? TokenType.colonColon : TokenType.colon); break;
       case $dot: _addToken(_match($dot) ? TokenType.dotDot : TokenType.dot); break;
       case $exclamation: _addToken(_match($equal) ? TokenType.bangEqual : TokenType.bang); break;

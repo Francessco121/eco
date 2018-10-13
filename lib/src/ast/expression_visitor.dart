@@ -10,6 +10,7 @@ import 'index_expression.dart';
 import 'literal_expression.dart';
 import 'logical_expression.dart';
 import 'map_expression.dart';
+import 'null_coalesce_expression.dart';
 import 'ternary_expression.dart';
 import 'unary_expression.dart';
 import 'variable_expression.dart';
@@ -27,6 +28,7 @@ abstract class ExpressionVisitor<T> {
   T visitLiteral(LiteralExpression literal);
   T visitLogical(LogicalExpression logical);
   T visitMap(MapExpression map);
+  T visitNullCoalesce(NullCoalesceExpression nullCoalesce);
   T visitTernary(TernaryExpression ternary);
   T visitUnary(UnaryExpression unary);
   T visitVariable(VariableExpression variable);
