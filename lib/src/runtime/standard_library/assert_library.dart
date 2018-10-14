@@ -20,7 +20,9 @@ class AssertLibrary extends BuiltInLibrary {
         final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
         if (!condition) {
-          throw BuiltInFunctionException(errorMessage ?? 'Assert failed.');
+          throw BuiltInFunctionException(errorMessage
+            ?? "Assert failed. Expected true but got '$condition'."
+          );
         }
       },
       parameters: [
@@ -37,7 +39,9 @@ class AssertLibrary extends BuiltInLibrary {
         final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
         if (condition) {
-          throw BuiltInFunctionException(errorMessage ?? 'Assert failed.');
+          throw BuiltInFunctionException(errorMessage 
+            ?? "Assert failed. Expected false but got '$condition'."
+          );
         }
       },
       parameters: [
@@ -75,7 +79,9 @@ class AssertLibrary extends BuiltInLibrary {
         final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
         if (obj.type != RuntimeValueType.$null) {
-          throw BuiltInFunctionException(errorMessage ?? 'Assert failed.');
+          throw BuiltInFunctionException(errorMessage
+            ?? "Assert failed. Expected null but got '$obj'."
+          );
         }
       },
       parameters: [
@@ -92,7 +98,9 @@ class AssertLibrary extends BuiltInLibrary {
         final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
         if (obj.type == RuntimeValueType.$null) {
-          throw BuiltInFunctionException(errorMessage ?? 'Assert failed.');
+          throw BuiltInFunctionException(errorMessage
+            ?? "Assert failed. Expected not null but got '$obj'."
+          );
         }
       },
       parameters: [

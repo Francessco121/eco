@@ -4,6 +4,26 @@ import 'package:test/test.dart';
 import 'utils.dart';
 
 void main() {
+  test('function statement', () async {
+    await runScript('''
+      fn normalFunc() {
+        return "normal";
+      }
+
+      Assert.isTrue(normalFunc() == "normal");
+    ''');
+  });
+
+  test('function expression', () async {
+    await runScript('''
+      var anonFunc = fn() {
+        return "anon";
+      };
+
+      Assert.isTrue(anonFunc() == "anon");
+    ''');
+  });
+
   test('optional parameters', () async {
     await runScript('''
       fn function(required, optional = 10) {
