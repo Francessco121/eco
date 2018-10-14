@@ -163,6 +163,9 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   bool _inTagContext = false;
 
   final List<Map<String, bool>> _scopes = [];
+  final Map<String, bool> _rootScope = {};
+
+  _Resolver();
 
   @override
   void visitArray(ArrayExpression array) {
@@ -549,11 +552,9 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   }
 
   void _declare(Token name) {
-    if (_scopes.isEmpty) {
-      return;
-    }
-
-    Map<String, bool> scope = _scopes.last;
+    Map<String, bool> scope = _scopes.isEmpty 
+      ? _rootScope 
+      : _scopes.last;
 
     if (scope.containsKey(name.lexeme)) {
       _addError(name, 'Cannot redefine a variable in the same scope.');
@@ -563,11 +564,11 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   }
 
   void _define(Token name) {
-    if (_scopes.isEmpty) {
-      return;
-    }
+    Map<String, bool> scope = _scopes.isEmpty 
+      ? _rootScope 
+      : _scopes.last;
 
-    _scopes.last[name.lexeme] = true;
+    scope[name.lexeme] = true;
   }
 
   void _addError(Token token, String message) {
