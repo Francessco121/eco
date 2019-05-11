@@ -782,7 +782,12 @@ class _Parser {
       // Parse body
       List<Statement> body = [];
       while (!_match(TokenType.rightBrace)) {
-        body.add(_declaration());
+        try {
+          body.add(_declaration());
+        } on _ParseException {
+          // Skip until beginning of new statement
+          _synchronize();
+        }
       }
 
       return HtmlExpression(keyword, body);
@@ -936,12 +941,16 @@ class _Parser {
   }
 
   void _synchronize() {
-    // Skip until semicolon or EOF
+    // Already synchronized if we just passed a semicolon
     if (_current > 0 && _previous().type == TokenType.semicolon) {
       return;
     }
 
+    // Skip until semicolon or EOF is consumed or next character is an open brace
     while (true) {
+      if (_check(TokenType.leftBrace)) {
+        break;
+      }
       final Token token = _advance();
 
       if (token.type == TokenType.semicolon || token.type == TokenType.eof) {
