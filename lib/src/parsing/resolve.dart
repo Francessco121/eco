@@ -54,7 +54,7 @@ Future<_ImportResolveResult> _resolveImports(
   final Map<ImportStatement, Uri> resolvedImports = {};
 
   for (final ImportStatement $import in imports) {
-    final String importPath = $import.path.literal;
+    final String importPath = $import.path.literal as String;
 
     if (importPath.startsWith('eco:')) {
       // Get the ID of the built-in library
