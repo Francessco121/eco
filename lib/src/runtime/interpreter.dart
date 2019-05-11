@@ -703,13 +703,78 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
         // Write attribute name
         _currentTagBuffer.write(attribute.name.lexeme);
 
-        // Only write the attribute value if the value is a string
+        // Only write the attribute value if the value is a string, number, list, or map
         if (attributeValue.type == RuntimeValueType.string) {
           _currentTagBuffer.write('="');
           _currentTagBuffer.write(attributeValue.string);
           _currentTagBuffer.write('"');
+        } else if (attributeValue.type == RuntimeValueType.number) {
+          _currentTagBuffer.write('="');
+          _currentTagBuffer.write(attributeValue.toString());
+          _currentTagBuffer.write('"');
+        } else if (attributeValue.type == RuntimeValueType.list) {
+          _currentTagBuffer.write('="');
+
+          // Write the list as a space separated list
+          bool first = true;
+          for (final RuntimeValue value in attributeValue.list) {
+            if (value.type == RuntimeValueType.$null) {
+              // Skip null values
+              continue;
+            }
+
+            if (value.type != RuntimeValueType.string 
+              && value.type != RuntimeValueType.number) {
+              // Ensure value is a string or number
+              _error(attribute.name, 
+                'Attribute list values must evaluate to null, a string, or a number.'
+              );
+            }
+
+            if (!first) {
+              _currentTagBuffer.write(' ');
+            }
+
+            _currentTagBuffer.write(value.toString());
+            first = false;
+          }
+
+          _currentTagBuffer.write('"');
+        } else if (attributeValue.type == RuntimeValueType.map) {
+          _currentTagBuffer.write('="');
+
+          // Write the list as a semicolon separated list of key:value pairs
+          bool first = true;
+          attributeValue.map.forEach((key, value) {
+            if (value.type == RuntimeValueType.$null) {
+              // Skip null values
+              return;
+            }
+
+            if (value.type != RuntimeValueType.string 
+              && value.type != RuntimeValueType.number) {
+              // Ensure value is a string or number
+              _error(attribute.name, 
+                'Attribute map values must evaluate to null, a string, or a number.'
+              );
+            }
+
+            if (!first) {
+              _currentTagBuffer.write(';');
+            }
+
+            _currentTagBuffer.write(key.toString());
+            _currentTagBuffer.write(': ');
+            _currentTagBuffer.write(value.toString());
+
+            first = false;
+          });
+
+          _currentTagBuffer.write('"');
         } else if (attributeValue.type != RuntimeValueType.boolean) {
-          _error(attribute.name, 'Attribute value must evaluate to null, a boolean, or a string.');
+          _error(attribute.name, 
+            'Attribute value must evaluate to null, a boolean, a string, a number, a list, or a map.'
+          );
         }
       }
     }
