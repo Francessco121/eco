@@ -15,6 +15,7 @@ import 'program.dart';
 import 'source.dart';
 import 'source_resolver.dart';
 import 'source_tree.dart';
+import 'user_library.dart';
 import 'view_compiler.dart';
 
 class ViewCompilerInternal implements ViewCompiler {
@@ -52,7 +53,12 @@ class ViewCompilerInternal implements ViewCompiler {
         final Source parentSource = await _loadParentViewSource(finalView);
 
         final SourceTreeNode treeNode = program.sourceTree.addRoot(parentSource.uri);
-        final Library parentLibrary = await program.loadUserLibrary(parentSource, treeNode);
+        final UserLibrary parentLibrary = await program.loadUserLibrary(parentSource, treeNode);
+
+        // Ensure the parent library parsed successfully
+        if (parentLibrary.parseErrors.isNotEmpty) {
+          throw ParseException(parentLibrary.parseErrors);
+        }
 
         // Create the view data ahead of time and set the child to the current 'final view'
         final View parentView = getView(parentLibrary);
