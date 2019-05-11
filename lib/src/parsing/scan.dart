@@ -128,9 +128,9 @@ class _Scanner {
       case $asterisk: _addToken(TokenType.star); break;
       case $hash: _addToken(TokenType.hash); break;
       case $percent: _addToken(TokenType.percent); break;
+      case $colon: _addToken(TokenType.colon); break;
       case $at: _addToken(TokenType.at); break;
       case $question: _addToken(_match($question) ? TokenType.questionQuestion : TokenType.question); break;
-      case $colon: _addToken(_match($colon) ? TokenType.colonColon : TokenType.colon); break;
       case $dot: _addToken(_match($dot) ? TokenType.dotDot : TokenType.dot); break;
       case $exclamation: _addToken(_match($equal) ? TokenType.bangEqual : TokenType.bang); break;
       case $greater_than: _addToken(_match($equal) ? TokenType.greaterEqual : TokenType.greater); break;
@@ -270,8 +270,21 @@ class _Scanner {
   }
 
   void _identifierOrKeyword() {
-    // Read all alpha-numeric characters
-    while (_isAlphaNumeric(_peek())) {
+    // Read all alpha-numeric characters,
+    // optionally with characters separated by a *single* dash,
+    // excluding dashes at the end (e.g. a-- is not 'a-'- and is 'a'--)
+    while (true) {
+      // Check if the next character is part of the identifier
+      final int nextChar = _peek();
+      if (!_isAlphaNumeric(nextChar) && (nextChar != $dash || !_isAlphaNumeric(_peekNext()))) {
+        // Next character is not alpha-numeric and either:
+        // a. not a dash
+        // b. a dash followed by a non alpha-numeric character
+        // Which means we're at the end of the identifier.
+        break;
+      }
+
+      // Check passed, consume next character
       _advance();
     }
 

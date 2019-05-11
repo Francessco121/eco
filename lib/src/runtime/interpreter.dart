@@ -679,11 +679,11 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   void visitTag(TagStatement tag) {
     // Write the opening tag
     _currentTagBuffer.write('<');
-    _currentTagBuffer.write(tag.name.literal);
+    _currentTagBuffer.write(tag.name.lexeme);
 
     // Write the attributes
-    if (tag.withClause != null) {
-      for (final Attribute attribute in tag.withClause.attributes) {
+    if (tag.attributes != null) {
+      for (final Attribute attribute in tag.attributes) {
         final RuntimeValue attributeValue = _evaluate(attribute.expression);
 
         if (attributeValue.type == RuntimeValueType.$null) {
@@ -700,12 +700,8 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
         _currentTagBuffer.write(' ');
 
-        // Use the literal if the attribute name is a string
-        if (attribute.name.type == TokenType.string) {
-          _currentTagBuffer.write(attribute.name.literal);
-        } else {
-          _currentTagBuffer.write(attribute.name.lexeme);
-        }
+        // Write attribute name
+        _currentTagBuffer.write(attribute.name.lexeme);
 
         // Only write the attribute value if the value is a string
         if (attributeValue.type == RuntimeValueType.string) {
@@ -729,7 +725,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
       // Write the closing tag
       _currentTagBuffer.writeln();
       _currentTagBuffer.write('</');
-      _currentTagBuffer.write(tag.name.literal);
+      _currentTagBuffer.write(tag.name.lexeme);
       _currentTagBuffer.writeln('>');
     } else {
       // Write the end of the opening tag

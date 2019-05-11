@@ -36,5 +36,4 @@ export 'unary_expression.dart';
 export 'variable_expression.dart';
 export 'variable_statement.dart';
 export 'while_statement.dart';
-export 'with_clause.dart';
 export 'write_statement.dart';

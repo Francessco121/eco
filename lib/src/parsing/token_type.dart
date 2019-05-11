@@ -8,7 +8,6 @@ enum TokenType {
   rightBrace,
   semicolon,
   colon,
-  colonColon,
   comma,
   dot,
   dotDot,

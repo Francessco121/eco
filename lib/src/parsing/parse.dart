@@ -399,14 +399,14 @@ class _Parser {
     final Token keyword = _advance();
 
     // Parse tag name
-    final Token tagName = _consume(TokenType.string, 
-      "Expected tag name as a string after '@'."
+    final Token tagName = _consumeIdentifierOrKeyword(
+      "Expected tag name after '@'."
     );
 
-    // Parse optional 'with' clause
-    WithClause withClause = null;
-    if (_check(TokenType.colonColon)) {
-      withClause = _withClause();
+    // Parse optional attribute list
+    List<Attribute> attributes = null;
+    if (_check(TokenType.identifier)) {
+      attributes = _tagAttributes();
     }
 
     // Parse optional body
@@ -422,13 +422,10 @@ class _Parser {
       _consume(TokenType.semicolon, "Expected ';' to end tag statement.");
     }
 
-    return TagStatement(keyword, tagName, withClause, body);
+    return TagStatement(keyword, tagName, attributes, body);
   }
 
-  WithClause _withClause() {
-    // Consume '::'
-    final Token keyword = _advance();
-
+  List<Attribute> _tagAttributes() {
     // Parse attributes
     List<Attribute> attributes = [];
     attributes.add(_attribute());
@@ -437,14 +434,13 @@ class _Parser {
       attributes.add(_attribute());
     }
 
-    return WithClause(keyword, attributes);
+    return attributes;
   }
 
   Attribute _attribute() {
     // Parse the attribute name
-    final Token name = _consumeAny(
-      const [TokenType.identifier, TokenType.string],
-      'Expected an attribute name as an identifier or string.'
+    final Token name = _consumeIdentifierOrKeyword(
+      'Expected an attribute name identifier.'
     );
 
     // Consume ':'
@@ -951,6 +947,7 @@ class _Parser {
       if (_check(TokenType.leftBrace)) {
         break;
       }
+
       final Token token = _advance();
 
       if (token.type == TokenType.semicolon || token.type == TokenType.eof) {
@@ -963,6 +960,42 @@ class _Parser {
     _errors.add(ParseError(token.sourceSpan, message));
 
     return _ParseException();
+  }
+
+  /// Consumes the current token if it is an identifier or any keyword
+  /// and returns the token.
+  /// 
+  /// Otherwise, throws a [_ParseException] and adds an error
+  /// with the given [errorMessage].
+  Token _consumeIdentifierOrKeyword(String errorMessage) {
+    // TODO: Is there a better way to check this?
+    return _consumeAny(
+      const [
+        TokenType.identifier,
+
+        TokenType.$as,
+        TokenType.$break,
+        TokenType.$continue,
+        TokenType.function,
+        TokenType.$return,
+        TokenType.$var,
+        TokenType.$for,
+        TokenType.foreach,
+        TokenType.$if,
+        TokenType.$else,
+        TokenType.$while,
+        TokenType.import,
+        TokenType.$in,
+        TokenType.and,
+        TokenType.or,
+        TokenType.$null,
+        TokenType.$true,
+        TokenType.$false,
+        TokenType.public,
+        TokenType.html,
+      ], 
+      errorMessage
+    );
   }
 
   /// Checks if the current token is of the given [type].

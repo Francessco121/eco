@@ -24,9 +24,9 @@ return_stmt      -> "return" expression? ";" ;
 while_stmt       -> "while" "(" expression ")" statement ;
 
 write_stmt       -> "<:" expression ";" ;
-tag_stmt         -> "@" STRING with_clause? ( ";" | "{" declaration* "}" ) ;
-with_clause      -> "::" attribute ( "," attribute )* ;
-attribute        -> ( IDENTIFIER | STRING ) ":" expression ;
+tag_stmt         -> "@" IDENTIFIER_OR_KEYWORD tag_attrs? ( ";" | "{" declaration* "}" ) ;
+tag_attrs        -> attribute ( "," attribute )* ;
+attribute        -> IDENTIFIER_OR_KEYWORD ":" expression ;
 
 expression       -> assignment ;
 

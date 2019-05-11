@@ -391,8 +391,8 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
       _addError(tag.keyword, 'Cannot use tags outside of tag context.');
     }
 
-    if (tag.withClause != null) {
-      for (final Attribute attribute in tag.withClause.attributes) {
+    if (tag.attributes != null) {
+      for (final Attribute attribute in tag.attributes) {
         _resolveExpression(attribute.expression);
       }
     }
