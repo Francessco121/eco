@@ -442,6 +442,12 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   }
 
   @override
+  void visitWhen(WhenExpression when) {
+    _resolveExpression(when.expression);
+    _resolveExpression(when.condition);
+  }
+
+  @override
   void visitWhile(WhileStatement $while) {
     _loopScope(() {
       _resolveExpression($while.condition);

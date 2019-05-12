@@ -30,7 +30,8 @@ const Map<String, TokenType> _keywords = {
   'true': TokenType.$true,
   'false': TokenType.$false,
   'pub': TokenType.public,
-  'html': TokenType.html
+  'html': TokenType.html,
+  'when': TokenType.when
 };
 
 /// Scans the Eco [source] into a list of [Token]s.

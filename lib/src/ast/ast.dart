@@ -35,5 +35,6 @@ export 'ternary_expression.dart';
 export 'unary_expression.dart';
 export 'variable_expression.dart';
 export 'variable_statement.dart';
+export 'when_expression.dart';
 export 'while_statement.dart';
 export 'write_statement.dart';

@@ -28,9 +28,11 @@ tag_stmt         -> "@" IDENTIFIER_OR_KEYWORD tag_attrs? ( ";" | "{" declaration
 tag_attrs        -> attribute ( "," attribute )* ;
 attribute        -> IDENTIFIER_OR_KEYWORD ":" expression ;
 
-expression       -> assignment ;
+expression       -> when_expr ;
 
-assignment       -> ( IDENTIFIER | value ( get | index ) ) "=" expression 
+when_expr        -> assignment ( "when" assignment )* ;
+
+assignment       -> ( IDENTIFIER | value ( get | index ) ) "=" assignment 
                   | ternary_expr ;
 
 ternary_expr     -> null_coalesce ( "?" expression ":" expression )? ;

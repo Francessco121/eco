@@ -14,6 +14,7 @@ import 'null_coalesce_expression.dart';
 import 'ternary_expression.dart';
 import 'unary_expression.dart';
 import 'variable_expression.dart';
+import 'when_expression.dart';
 
 abstract class ExpressionVisitor<T> {
   T visitArray(ArrayExpression array);
@@ -32,4 +33,5 @@ abstract class ExpressionVisitor<T> {
   T visitTernary(TernaryExpression ternary);
   T visitUnary(UnaryExpression unary);
   T visitVariable(VariableExpression variable);
+  T visitWhen(WhenExpression when);
 }

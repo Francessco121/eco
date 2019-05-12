@@ -453,7 +453,20 @@ class _Parser {
   }
 
   Expression _expression() {
-    return _assignment();
+    return _when();
+  }
+
+  Expression _when() {
+    Expression expression = _assignment();
+
+    while (_check(TokenType.when)) {
+      final Token keyword = _advance();
+      final Expression condition = _assignment();
+
+      expression = WhenExpression(expression, condition, keyword);
+    }
+
+    return expression;
   }
 
   Expression _assignment() {
@@ -462,7 +475,7 @@ class _Parser {
     if (_check(TokenType.equal)) {
       final Token equal = _advance();
 
-      final Expression value = _expression();
+      final Expression value = _assignment();
 
       if (expression is VariableExpression 
         || expression is GetExpression 
@@ -993,6 +1006,7 @@ class _Parser {
         TokenType.$false,
         TokenType.public,
         TokenType.html,
+        TokenType.when
       ], 
       errorMessage
     );

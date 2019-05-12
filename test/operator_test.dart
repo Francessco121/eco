@@ -209,4 +209,30 @@ void main() {
       Assert.isTrue(variable == 5);
     ''');
   });
+
+  test('when with a true condition', () async {
+    await runScript('''
+      var variable = 2 when true;
+
+      Assert.areEqual(2, variable);
+    ''');
+  });
+
+  test('when with a false condition', () async {
+    await runScript('''
+      var variable = 2 when false;
+
+      Assert.isNull(variable);
+    ''');
+  });
+
+  test('when with a false condition does not evaluate expression', () async {
+    await runScript('''
+      var variable = 1;
+      var variable2 = variable = 2 when false;
+
+      Assert.areEqual(1, variable);
+      Assert.isNull(variable2);
+    ''');
+  });
 }

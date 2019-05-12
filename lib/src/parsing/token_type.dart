@@ -59,6 +59,7 @@ enum TokenType {
   $false,
   public,
   html,
+  when,
 
   // End-of-file
   eof

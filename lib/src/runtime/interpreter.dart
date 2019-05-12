@@ -897,6 +897,25 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   }
 
   @override
+  RuntimeValue visitWhen(WhenExpression when) {
+    // Evaluate the condition
+    final RuntimeValue conditionValue = _evaluate(when.condition);
+
+    if (conditionValue.type != RuntimeValueType.boolean) {
+      _error(when.keyword, 'When condition must evaluate to a boolean.');
+    }
+
+    // Check condition
+    if (conditionValue.boolean) {
+      // Condition is true, evaluate and return the left expression
+      return _evaluate(when.expression);
+    } else {
+      // Condition is false, do not evaluate the left and return null
+      return RuntimeValue.fromNull();
+    }
+  }
+
+  @override
   void visitWhile(WhileStatement $while) {
     try {
       // Loop until condition is false
