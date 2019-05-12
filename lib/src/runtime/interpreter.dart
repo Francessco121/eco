@@ -947,6 +947,11 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   void visitWrite(WriteStatement write) {
     final RuntimeValue value = _evaluate(write.expression);
 
+    if (value.type == RuntimeValueType.$null) {
+      // Ignore null
+      return;
+    }
+
     _currentTagBuffer.write(value.toString());
   }
 
