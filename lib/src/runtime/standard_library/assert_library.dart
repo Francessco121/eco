@@ -24,6 +24,8 @@ class AssertLibrary extends BuiltInLibrary {
             ?? "Assert failed. Expected true but got '$condition'."
           );
         }
+
+        return null;
       },
       parameters: [
         FunctionParameter('condition'),
@@ -43,6 +45,8 @@ class AssertLibrary extends BuiltInLibrary {
             ?? "Assert failed. Expected false but got '$condition'."
           );
         }
+
+        return null;
       },
       parameters: [
         FunctionParameter('condition'),
@@ -63,6 +67,8 @@ class AssertLibrary extends BuiltInLibrary {
             "Assert failed. Expected '$expected' but got '$actual'."
           );
         }
+
+        return null;
       },
       parameters: [
         FunctionParameter('expected'),
@@ -83,6 +89,8 @@ class AssertLibrary extends BuiltInLibrary {
             ?? "Assert failed. Expected null but got '$obj'."
           );
         }
+
+        return null;
       },
       parameters: [
         FunctionParameter('object'),
@@ -102,6 +110,8 @@ class AssertLibrary extends BuiltInLibrary {
             ?? "Assert failed. Expected not null but got '$obj'."
           );
         }
+
+        return null;
       },
       parameters: [
         FunctionParameter('object'),

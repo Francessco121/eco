@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:meta/meta.dart';
-
 import 'parsing/parse_exception.dart';
 import 'runtime/standard_library/standard_library.dart';
 import 'runtime/built_in_library.dart';
@@ -84,7 +82,6 @@ class Program {
     _libraries[uri] = library;
   }
 
-  @virtual
   Future<LibraryEnvironment> run(Source source) async {
     // Cache the source
     _loadedSources[source.uri] = source;

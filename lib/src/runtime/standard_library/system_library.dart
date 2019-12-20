@@ -17,6 +17,8 @@ class SystemLibrary extends BuiltInLibrary {
         if (options.systemPrintCallback != null) {
           options.systemPrintCallback(args['message'].toString() ?? 'null');
         }
+
+        return null;
       },
       parameters: [
         FunctionParameter('message')

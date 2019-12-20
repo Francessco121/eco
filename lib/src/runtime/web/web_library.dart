@@ -41,6 +41,8 @@ class WebLibrary extends BuiltInLibrary {
         final View view = _viewCompiler.getView(context.callingLibrary);
         view.parentViewPath = parentViewPath;
         view.parentModel = model;
+
+        return null;
       },
       parameters: [
         FunctionParameter('path'),
@@ -56,6 +58,8 @@ class WebLibrary extends BuiltInLibrary {
 
         final View view = _viewCompiler.getView(context.callingLibrary);
         view.content = content;
+
+        return null;
       },
       parameters: [
         FunctionParameter('content')
@@ -72,6 +76,8 @@ class WebLibrary extends BuiltInLibrary {
         final View view = _viewCompiler.getView(context.callingLibrary);
         
         view.stackViews[stackName] = content;
+
+        return null;
       },
       parameters: [
         FunctionParameter('name'),
