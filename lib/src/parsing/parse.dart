@@ -790,7 +790,7 @@ class _Parser {
 
       // Parse body
       List<Statement> body = [];
-      while (!_match(TokenType.rightBrace)) {
+      while (!_isAtEnd() && !_match(TokenType.rightBrace)) {
         try {
           body.add(_declaration());
         } on _ParseException {
