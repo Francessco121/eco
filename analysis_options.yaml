@@ -27,8 +27,7 @@ linter:
     - list_remove_unrelated_type
     - no_adjacent_strings_in_list
     - no_duplicate_case_values
-    # TODO: Re-enable prefer_void_to_null when fully supported
-    #- prefer_void_to_null
+    - prefer_void_to_null
     - test_types_in_equals
     - throw_in_finally
     - unnecessary_statements
@@ -53,8 +52,7 @@ linter:
     - avoid_setters_without_getters
     - avoid_single_cascade_in_expression_statements
     - avoid_unused_constructor_parameters
-    # TODO: Re-enable avoid_void_async when fully supported
-    #- avoid_void_async
+    - avoid_void_async
     - await_only_futures
     - camel_case_types
     - constant_identifier_names
@@ -68,7 +66,7 @@ linter:
     - only_throw_errors
     - overridden_fields
     - prefer_adjacent_string_concatenation
-    #- prefer_collection_literals
+    - prefer_collection_literals
     - prefer_conditional_assignment
     - prefer_const_constructors
     - prefer_const_constructors_in_immutables

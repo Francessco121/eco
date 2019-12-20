@@ -155,7 +155,7 @@ class ResolveResult {
 class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   final List<ParseError> errors = [];
   final Map<Expression, int> locals = {};
-  final Set<String> publicVariables = new Set<String>();
+  final Set<String> publicVariables = <String>{};
   final List<ImportStatement> imports = [];
 
   bool _inFunction = false;
@@ -532,7 +532,7 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
     statement.accept(this);
   }
 
-  void _resolveStatements(List<Statement> statements) async {
+  void _resolveStatements(List<Statement> statements) {
     for (final Statement statement in statements) {
       statement.accept(this);
     }
