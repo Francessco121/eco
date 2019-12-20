@@ -4,6 +4,7 @@
 
 # Local Pub files
 .packages
+pubspec.lock
 
 # Dart build cache
 .dart_tool/
