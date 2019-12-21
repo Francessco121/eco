@@ -782,13 +782,12 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     // Run the optional tag body
     if (tag.body != null) {
       // Write the end of the opening tag
-      _currentTagBuffer.writeln('>');
+      _currentTagBuffer.write('>');
 
       // Execute body
       _executeBlock(tag.body);
 
       // Write the closing tag
-      _currentTagBuffer.writeln();
       _currentTagBuffer.write('</');
       _currentTagBuffer.write(tag.name.lexeme);
       _currentTagBuffer.writeln('>');
