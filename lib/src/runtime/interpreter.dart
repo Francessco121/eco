@@ -706,11 +706,11 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
         // Only write the attribute value if the value is a string, number, list, or map
         if (attributeValue.type == RuntimeValueType.string) {
           _currentTagBuffer.write('="');
-          _currentTagBuffer.write(attributeValue.string);
+          _currentTagBuffer.write(_escapeAttribute(attributeValue.string));
           _currentTagBuffer.write('"');
         } else if (attributeValue.type == RuntimeValueType.number) {
           _currentTagBuffer.write('="');
-          _currentTagBuffer.write(attributeValue.toString());
+          _currentTagBuffer.write(_escapeAttribute(attributeValue.toString()));
           _currentTagBuffer.write('"');
         } else if (attributeValue.type == RuntimeValueType.list) {
           _currentTagBuffer.write('="');
@@ -735,7 +735,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
               _currentTagBuffer.write(' ');
             }
 
-            _currentTagBuffer.write(value.toString());
+            _currentTagBuffer.write(_escapeAttribute(value.toString()));
             first = false;
           }
 
@@ -763,9 +763,9 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
               _currentTagBuffer.write(';');
             }
 
-            _currentTagBuffer.write(key.toString());
+            _currentTagBuffer.write(_escapeAttribute(key.toString()));
             _currentTagBuffer.write(': ');
-            _currentTagBuffer.write(value.toString());
+            _currentTagBuffer.write(_escapeAttribute(value.toString()));
 
             first = false;
           });
@@ -952,6 +952,10 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     }
 
     _currentTagBuffer.write(value.toString());
+  }
+
+  String _escapeAttribute(String attribute) {
+    return attribute.replaceAll('"', '&#34;');
   }
 
   FunctionParameter _convertParameter(Parameter parameter) {
