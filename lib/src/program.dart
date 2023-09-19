@@ -31,9 +31,9 @@ class Program {
   /// The entire dependency tree of the program.
   final sourceTree = new SourceTree();
 
-  UnmodifiableMapView<String, BuiltInLibrary> _builtInLibrariesView;
-  UnmodifiableListView<String> _implicitImportsView;
-  UnmodifiableMapView<Uri, Library> _librariesView;
+  late final UnmodifiableMapView<String, BuiltInLibrary> _builtInLibrariesView;
+  late final UnmodifiableListView<String> _implicitImportsView;
+  late final UnmodifiableMapView<Uri, Library> _librariesView;
 
   final Map<String, BuiltInLibrary> _builtInLibraries = {};
   final List<String> _implicitImports = [];
@@ -43,8 +43,8 @@ class Program {
   final Map<Uri, Library> _libraries = {};
 
   Program({
-    SourceResolver sourceResolver,
-    StandardLibraryOptions standardLibraryOptions
+    SourceResolver? sourceResolver,
+    StandardLibraryOptions? standardLibraryOptions
   })
     : this.sourceResolver = sourceResolver ?? FileSourceResolver() {
 
@@ -84,10 +84,14 @@ class Program {
 
   Future<LibraryEnvironment> run(Source source) async {
     // Cache the source
-    _loadedSources[source.uri] = source;
+    if (source.uri != null) {
+      _loadedSources[source.uri!] = source;
+    }
 
     // Create a new root source tree node
-    final treeNode = sourceTree.addRoot(source.uri);
+    final treeNode = source.uri != null 
+        ? sourceTree.addRoot(source.uri!) 
+        : SourceTreeNode(null);
 
     // Create and cache the user library
     final library = await UserLibrary.create(this, treeNode, source.sourceSpan);
@@ -110,8 +114,8 @@ class Program {
     return environment;
   }
   
-  Future<Source> loadSource(Uri uri) async {
-    Source source = _loadedSources[uri];
+  Future<Source?> loadSource(Uri uri) async {
+    Source? source = _loadedSources[uri];
 
     if (source == null) {
       source = await sourceResolver.load(uri);
@@ -125,20 +129,20 @@ class Program {
   }
 
   Future<UserLibrary> loadUserLibrary(Source source, SourceTreeNode treeNode) async {
-    UserLibrary library = _cachedUserLibraries[source];
+    UserLibrary? library = _cachedUserLibraries[source];
 
     if (library == null) {
       library = await UserLibrary.create(this, treeNode, source.sourceSpan);
 
       _cachedUserLibraries[source] = library;
-      _libraries[source.uri] = library;
+      _libraries[source.uri!] = library;
     }
 
     return library;
   }
 
   LibraryEnvironment loadEnvironment(Library library) {
-    LibraryEnvironment environment = _cachedEnvironments[library];
+    LibraryEnvironment? environment = _cachedEnvironments[library];
 
     if (environment == null) {
       environment = _createEnvironment(library);
@@ -168,7 +172,7 @@ class Program {
   void _addImplicitImports(LibraryEnvironment environment) {
     for (final String id in _implicitImports) {
       // Get the built-in library
-      final BuiltInLibrary builtInLibrary = _builtInLibraries[id];
+      final BuiltInLibrary builtInLibrary = _builtInLibraries[id]!;
 
       // Create an environment for the built-in library
       final LibraryEnvironment builtInLibraryEnvironment = 

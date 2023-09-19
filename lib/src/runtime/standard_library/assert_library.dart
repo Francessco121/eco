@@ -16,8 +16,8 @@ class AssertLibrary extends BuiltInLibrary {
     // isTrue
     defineFunction(BuiltInFunction(
       (_, args) {
-        final bool condition = parseBoolean(args, 'condition');
-        final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
+        final bool condition = parseBoolean(args, 'condition')!;
+        final String? errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
         if (!condition) {
           throw BuiltInFunctionException(errorMessage
@@ -37,8 +37,8 @@ class AssertLibrary extends BuiltInLibrary {
     // isFalse
     defineFunction(BuiltInFunction(
       (_, args) {
-        final bool condition = parseBoolean(args, 'condition');
-        final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
+        final bool condition = parseBoolean(args, 'condition')!;
+        final String? errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
         if (condition) {
           throw BuiltInFunctionException(errorMessage 
@@ -58,9 +58,9 @@ class AssertLibrary extends BuiltInLibrary {
     // areEqual
     defineFunction(BuiltInFunction(
       (_, args) {
-        final RuntimeValue expected = args['expected'];
-        final RuntimeValue actual = args['actual'];
-        final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
+        final RuntimeValue? expected = args['expected'];
+        final RuntimeValue? actual = args['actual'];
+        final String? errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
         if (expected != actual) {
           throw BuiltInFunctionException(errorMessage ?? 
@@ -81,8 +81,8 @@ class AssertLibrary extends BuiltInLibrary {
     // isNull
     defineFunction(BuiltInFunction(
       (_, args) {
-        final RuntimeValue obj = args['object'];
-        final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
+        final RuntimeValue obj = args['object']!;
+        final String? errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
         if (obj.type != RuntimeValueType.$null) {
           throw BuiltInFunctionException(errorMessage
@@ -102,8 +102,8 @@ class AssertLibrary extends BuiltInLibrary {
     // isNotNull
     defineFunction(BuiltInFunction(
       (_, args) {
-        final RuntimeValue obj = args['object'];
-        final String errorMessage = parseString(args, 'errorMessage', allowNull: true);
+        final RuntimeValue obj = args['object']!;
+        final String? errorMessage = parseString(args, 'errorMessage', allowNull: true);
 
         if (obj.type == RuntimeValueType.$null) {
           throw BuiltInFunctionException(errorMessage

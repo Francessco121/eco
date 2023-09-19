@@ -5,9 +5,7 @@ import 'expression_visitor.dart';
 class LiteralExpression implements Expression {
   final RuntimeValue value;
 
-  LiteralExpression(this.value) {
-    if (value == null) throw ArgumentError.notNull('value');
-  }
+  LiteralExpression(this.value);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

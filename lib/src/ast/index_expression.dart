@@ -8,11 +8,7 @@ class IndexExpression implements Expression {
 
   final Token openBracket;
 
-  IndexExpression(this.indexee, this.index, this.openBracket) {
-    if (indexee == null) throw ArgumentError.notNull('indexee');
-    if (index == null) throw ArgumentError.notNull('index');
-    if (openBracket == null) throw ArgumentError.notNull('openBracket');
-  }
+  IndexExpression(this.indexee, this.index, this.openBracket);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

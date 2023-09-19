@@ -4,9 +4,7 @@ import 'statement_visitor.dart';
 class BlockStatement implements Statement {
   final List<Statement> statements;
 
-  BlockStatement(this.statements) {
-    if (statements == null) throw ArgumentError.notNull('statements');
-  }
+  BlockStatement(this.statements);
 
   @override
   void accept(StatementVisitor visitor) {

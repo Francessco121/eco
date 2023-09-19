@@ -7,11 +7,7 @@ class GetExpression implements Expression {
   final Token name;
   final Token dot;
 
-  GetExpression(this.target, this.name, this.dot) {
-    if (target == null) throw ArgumentError.notNull('target');
-    if (name == null) throw ArgumentError.notNull('name');
-    if (dot == null) throw ArgumentError.notNull('dot');
-  }
+  GetExpression(this.target, this.name, this.dot);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

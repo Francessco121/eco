@@ -7,13 +7,13 @@ import 'package:path/path.dart' as $path;
 import 'source.dart';
 
 abstract class SourceResolver {
-  Uri resolvePath(String path, [Uri relativeTo]);
-  Future<Source> load(Uri uri);
+  Uri resolvePath(String path, [Uri? relativeTo]);
+  Future<Source?> load(Uri uri);
 }
 
 class FileSourceResolver implements SourceResolver {
   @override
-  Future<Source> load(Uri uri) async {
+  Future<Source?> load(Uri uri) async {
     final file = new io.File.fromUri(uri);
 
     if (file.existsSync()) {
@@ -26,7 +26,7 @@ class FileSourceResolver implements SourceResolver {
   }
 
   @override
-  Uri resolvePath(String path, [Uri relativeTo]) {
+  Uri resolvePath(String path, [Uri? relativeTo]) {
     final String fullPath = relativeTo == null
       ? path
       : $path.join($path.dirname($path.fromUri(relativeTo)), path);
@@ -41,8 +41,8 @@ class BuildSourceResolver implements SourceResolver {
   BuildSourceResolver(this._buildStep);
 
   @override
-  Future<Source> load(Uri uri) async {
-    final id = new AssetId.resolve(uri.toString());
+  Future<Source?> load(Uri uri) async {
+    final id = new AssetId.resolve(uri);
     
     try {
       final String content = await _buildStep.readAsString(id);
@@ -54,10 +54,10 @@ class BuildSourceResolver implements SourceResolver {
   }
 
   @override
-  Uri resolvePath(String path, [Uri relativeTo]) {
+  Uri resolvePath(String path, [Uri? relativeTo]) {
     return AssetId.resolve(
-      path, 
-      from: AssetId.resolve(relativeTo.toString())
+      Uri.parse(path), 
+      from: relativeTo == null ? null : AssetId.resolve(relativeTo)
     ).uri;
   }
 }

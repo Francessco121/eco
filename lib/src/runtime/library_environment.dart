@@ -14,9 +14,9 @@ class LibraryEnvironment {
   final Scope libraryScope;
   
   LibraryEnvironment._({
-    this.library,
-    this.publicScope,
-    this.libraryScope
+    required this.library,
+    required this.publicScope,
+    required this.libraryScope
   });
 
   /// Creates a new environment for running the given [library].

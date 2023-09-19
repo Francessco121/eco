@@ -1,7 +1,5 @@
 import 'dart:collection';
 
-import 'package:meta/meta.dart';
-
 import '../ast/ast.dart';
 import '../runtime/runtime_value.dart';
 import 'parse_error.dart';
@@ -10,8 +8,6 @@ import 'token_type.dart';
 
 /// Parses a list of Eco [tokens] into a list of [Statement]s.
 ParseResult parse(List<Token> tokens) {
-  if (tokens == null) throw ArgumentError.notNull('tokens');
-
   final parser = _Parser(tokens);
   
   return parser.parse();
@@ -22,11 +18,9 @@ class ParseResult {
   final UnmodifiableListView<Statement> statements;
 
   ParseResult({
-    @required this.statements,
-    @required this.errors
-  })
-    : assert(statements != null),
-      assert(errors != null);
+    required this.statements,
+    required this.errors
+  });
 }
 
 class _ParseException implements Exception { }
@@ -95,23 +89,26 @@ class _Parser {
       'Expected import path string.'
     );
 
-    Token asKeyword;
-    Token asIdentifier;
+    Token? asKeyword;
+    Token? asIdentifier;
 
-    if (_check(TokenType.$as)) {
-      asKeyword = _advance();
+    // if (_check(TokenType.$as)) {
+    //   asKeyword = _advance();
 
-      asIdentifier = _consume(TokenType.identifier, 
-        "Expected 'as' identifier."
-      );
-    }
+    //   asIdentifier = _consume(TokenType.identifier, 
+    //     "Expected 'as' identifier."
+    //   );
+    // }
+
+    asKeyword = _consume(TokenType.$as, "Expected 'as' keyword.");
+    asIdentifier = _consume(TokenType.identifier, "Expected 'as' identifier.");
 
     _consume(TokenType.semicolon, "Expected ';' to end import statement.");
 
     return ImportStatement(keyword, path, asKeyword, asIdentifier);
   }
 
-  FunctionStatement _function([Token publicKeyword]) {
+  FunctionStatement _function([Token? publicKeyword]) {
     // Consume 'fn'
     _advance();
 
@@ -152,7 +149,7 @@ class _Parser {
     return FunctionStatement(identifier, parameters, body, publicKeyword: publicKeyword);
   }
 
-  VariableStatement _variableDeclaration([Token publicKeyword]) {
+  VariableStatement _variableDeclaration([Token? publicKeyword]) {
     // Consume 'var'
     _advance();
 
@@ -160,7 +157,7 @@ class _Parser {
       "Expected variable identifier after 'var'."
     );
 
-    Expression initializer;
+    Expression? initializer;
     if (_match(TokenType.equal)) {
       initializer = _expression();
     }
@@ -228,7 +225,7 @@ class _Parser {
     final Token keyword = _advance();
 
     // Parse initializer
-    Statement initializer;
+    Statement? initializer;
     if (_check(TokenType.$var)) {
       initializer = _variableDeclaration();
     } else if (!_match(TokenType.semicolon)) {
@@ -236,14 +233,14 @@ class _Parser {
     }
 
     // Parse condition
-    Expression condition;
+    Expression? condition;
     if (!_match(TokenType.semicolon)) {
       condition = _expression();
       _consume(TokenType.semicolon, "Expected ';' after for condition.");
     }
 
     // Parse afterthought
-    Expression afterthought;
+    Expression? afterthought;
     if (!_check(TokenType.leftBrace)) {
       afterthought = _expression();
     }
@@ -274,7 +271,7 @@ class _Parser {
       'Expected foreach key identifier.'
     );
 
-    Token valueIdentifier;
+    Token? valueIdentifier;
     if (_match(TokenType.comma)) {
       valueIdentifier = _consume(TokenType.identifier,
         "Expected foreach value identifier after ','."
@@ -320,7 +317,7 @@ class _Parser {
     BlockStatement thenStatement = _block();
 
     // Parse else statement
-    Statement elseStatement;
+    Statement? elseStatement;
     if (_match(TokenType.$else)) {
       if (_check(TokenType.$if)) {
         // Else if
@@ -343,7 +340,7 @@ class _Parser {
     final Token keyword = _advance();
 
     // Parse expression
-    Expression expression;
+    Expression? expression;
     if (!_match(TokenType.semicolon)) {
       expression = _expression();
 
@@ -404,13 +401,13 @@ class _Parser {
     );
 
     // Parse optional attribute list
-    List<Attribute> attributes = null;
+    List<Attribute>? attributes = null;
     if (_check(TokenType.identifier)) {
       attributes = _tagAttributes();
     }
 
     // Parse optional body
-    List<Statement> body = null;
+    List<Statement>? body = null;
     if (_match(TokenType.leftBrace)) {
       body = [];
 
@@ -703,7 +700,7 @@ class _Parser {
     while (_check(TokenType.identifier)) {
       final Token identifier = _advance();
 
-      Expression defaultValue = null;
+      Expression? defaultValue = null;
 
       if (_match(TokenType.equal)) {
         defaultValue = _value();
@@ -870,11 +867,11 @@ class _Parser {
     final List<Expression> positional = [];
     final Map<Token, Expression> named = {};
 
-    Token lastComma;
+    Token? lastComma;
     bool namedOnly = false;
 
     while (!_check(TokenType.rightParen)) {
-      Token parameterName;
+      Token? parameterName;
       Expression expression;
 
       // Check if this is a named argument
@@ -895,7 +892,7 @@ class _Parser {
 
       // Ensure named arguments are last
       if (parameterName == null && namedOnly) {
-        throw _error(lastComma, 
+        throw _error(lastComma!, 
           'Named arguments must be after all positional arguments.'
         );
       }

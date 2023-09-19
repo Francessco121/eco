@@ -3,18 +3,18 @@ import '../runtime_value.dart';
 
 class View {
   /// A path to this view's parent or `null` if this is a top-level view.
-  String parentViewPath;
+  String? parentViewPath;
 
   /// The model that should be passed to this view's parent or `null` if
   /// the view never specified a model.
-  RuntimeValue parentModel;
+  RuntimeValue? parentModel;
 
   /// This view's child or `null` if this is an entry view.
-  View child;
+  View? child;
 
   /// The compiled HTML content of the view or `null` if the view never
   /// specified its output content.
-  String content;
+  String? content;
 
   /// A map of all stack entries by name to their view content.
   final Map<String, String> stackViews = {};
@@ -22,14 +22,12 @@ class View {
   /// The library which created this view.
   final Library library;
 
-  View(this.library) {
-    if (library == null) throw ArgumentError.notNull('library');
-  }
+  View(this.library);
 
   /// Returns a descendant view with the given [uri] or `null`
   /// if no descendant is from that `uri`.
-  View getDescendant(Uri uri) {
-    View child = this.child;
+  View? getDescendant(Uri uri) {
+    View? child = this.child;
 
     while (child != null) {
       if (child.library.uri == uri) {
@@ -46,10 +44,10 @@ class View {
   /// 
   /// If [untilUri] is specified, only descendants up to and including
   /// that URI will be returned.
-  List<View> getDescendants({Uri untilUri}) {
+  List<View> getDescendants({Uri? untilUri}) {
     final List<View> descendants = [];
 
-    View child = this.child;
+    View? child = this.child;
 
     while (child != null) {
       descendants.add(child);

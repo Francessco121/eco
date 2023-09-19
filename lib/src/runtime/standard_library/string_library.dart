@@ -15,8 +15,8 @@ class StringLibrary extends BuiltInLibrary {
     // byte
     defineFunction(BuiltInFunction(
       (_, args) {
-        final String str = parseString(args, 'str');
-        final int index = parseInteger(args, 'index');
+        final String str = parseString(args, 'str')!;
+        final int index = parseInteger(args, 'index')!;
 
         if (index < 0 || index >= str.length) {
           throw BuiltInFunctionException(
@@ -37,9 +37,9 @@ class StringLibrary extends BuiltInLibrary {
     // sub
     defineFunction(BuiltInFunction(
       (_, args) {
-        final String str = parseString(args, 'str');
-        final int startIndex = parseInteger(args, 'startIndex');
-        final int length = parseInteger(args, 'length');
+        final String str = parseString(args, 'str')!;
+        final int startIndex = parseInteger(args, 'startIndex')!;
+        final int length = parseInteger(args, 'length')!;
 
         if (startIndex < 0 || startIndex > str.length) {
           throw BuiltInFunctionException(

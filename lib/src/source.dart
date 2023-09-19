@@ -4,13 +4,11 @@ class Source {
   final SourceSpan sourceSpan;
   
   String get text => sourceSpan.text;
-  Uri get uri => sourceSpan.sourceUrl;
+  Uri? get uri => sourceSpan.sourceUrl;
 
-  Source._(this.sourceSpan) {
-    if (sourceSpan == null) throw ArgumentError.notNull('sourceSpan');
-  }
+  Source._(this.sourceSpan);
 
-  factory Source(Uri uri, String content) {
+  factory Source(Uri? uri, String content) {
     return Source._(SourceSpan(
       SourceLocation(0, sourceUrl: uri),
       SourceLocation(content.length, sourceUrl: uri),

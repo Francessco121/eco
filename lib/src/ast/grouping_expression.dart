@@ -4,9 +4,7 @@ import 'expression_visitor.dart';
 class GroupingExpression implements Expression {
   final Expression expression;
 
-  GroupingExpression(this.expression) {
-    if (expression == null) throw ArgumentError.notNull('expression');
-  }
+  GroupingExpression(this.expression);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

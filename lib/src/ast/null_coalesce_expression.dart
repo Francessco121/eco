@@ -8,11 +8,7 @@ class NullCoalesceExpression implements Expression {
 
   final Token symbol;
 
-  NullCoalesceExpression(this.left, this.right, this.symbol) {
-    if (left == null) throw ArgumentError.notNull('left');
-    if (right == null) throw ArgumentError.notNull('right');
-    if (symbol == null) throw ArgumentError.notNull('symbol');
-  }
+  NullCoalesceExpression(this.left, this.right, this.symbol);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

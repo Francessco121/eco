@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:meta/meta.dart';
 import 'package:source_span/source_span.dart';
 
 import 'parsing/parse_error.dart';
@@ -25,8 +24,8 @@ class ViewCompilerInternal implements ViewCompiler {
   final Map<Library, View> _views = {};
 
   ViewCompilerInternal({
-    SourceResolver sourceResolver,
-    StandardLibraryOptions standardLibraryOptions
+    SourceResolver? sourceResolver,
+    StandardLibraryOptions? standardLibraryOptions
   })
     : program = new Program(
       sourceResolver: sourceResolver,
@@ -42,7 +41,7 @@ class ViewCompilerInternal implements ViewCompiler {
     _views.clear();
 
     final LibraryEnvironment result = await program.run(viewSource);
-    final View view = _views[result.library];
+    final View? view = _views[result.library];
 
     if (view != null) {
       View finalView = view;
@@ -50,9 +49,9 @@ class ViewCompilerInternal implements ViewCompiler {
       // Keep processing views until we have reached a root view
       while (finalView.parentViewPath != null) {
         // Load the parent view
-        final Source parentSource = await _loadParentViewSource(finalView);
+        final Source parentSource = (await _loadParentViewSource(finalView))!;
 
-        final SourceTreeNode treeNode = program.sourceTree.addRoot(parentSource.uri);
+        final SourceTreeNode treeNode = program.sourceTree.addRoot(parentSource.uri!);
         final UserLibrary parentLibrary = await program.loadUserLibrary(parentSource, treeNode);
 
         // Ensure the parent library parsed successfully
@@ -71,7 +70,7 @@ class ViewCompilerInternal implements ViewCompiler {
         finalView = parentView;
       }
 
-      return finalView.content;
+      return finalView.content ?? '';
     }
     
     // No view was created...
@@ -80,7 +79,7 @@ class ViewCompilerInternal implements ViewCompiler {
 
   /// Gets an existing or creates a view for the given [library].
   View getView(Library library) {
-    View view = _views[library];
+    View? view = _views[library];
 
     if (view == null) {
       view = new View(library);
@@ -90,10 +89,10 @@ class ViewCompilerInternal implements ViewCompiler {
     return view;
   }
 
-  Future<Source> _loadParentViewSource(View fromView) async {
+  Future<Source?> _loadParentViewSource(View fromView) async {
     // Resolve a path to the parent view
     final Uri uri = program.sourceResolver.resolvePath(
-      fromView.parentViewPath,
+      fromView.parentViewPath!,
       fromView.library.uri
     );
 
@@ -105,7 +104,7 @@ class ViewCompilerInternal implements ViewCompiler {
     }
 
     // Load the source
-    final Source source = await program.loadSource(uri);
+    final Source? source = await program.loadSource(uri);
 
     if (source == null) {
       _throwParseError(fromView.library.uri, 
@@ -114,7 +113,7 @@ class ViewCompilerInternal implements ViewCompiler {
     }
 
     // Check for cyclic inheritance
-    final View cyclicChild = fromView.getDescendant(uri);
+    final View? cyclicChild = fromView.getDescendant(uri);
     if (cyclicChild != null) {
       _throwCyclicInheritanceError(fromView, cyclicChild);
     }
@@ -122,8 +121,7 @@ class ViewCompilerInternal implements ViewCompiler {
     return source;
   }
 
-  @alwaysThrows
-  void _throwCyclicInheritanceError(View view, View cyclicChild) {
+  Never _throwCyclicInheritanceError(View view, View cyclicChild) {
     final buffer = StringBuffer();
     buffer.writeln('Inheritance would result in cyclic dependencies because');
 
@@ -148,8 +146,7 @@ class ViewCompilerInternal implements ViewCompiler {
     _throwParseError(view.library.uri, buffer.toString());
   }
 
-  @alwaysThrows
-  void _throwParseError(Uri fileUri, String message) {
+  Never _throwParseError(Uri? fileUri, String message) {
     final location = SourceLocation(0, sourceUrl: fileUri);
 
     final error = ParseError(

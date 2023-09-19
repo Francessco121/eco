@@ -7,10 +7,7 @@ class FunctionExpression implements Expression {
   final List<Parameter> parameters;
   final FunctionBody body;
 
-  FunctionExpression(this.parameters, this.body) {
-    if (parameters == null) throw ArgumentError.notNull('parameters');
-    if (body == null) throw ArgumentError.notNull('body');
-  }
+  FunctionExpression(this.parameters, this.body);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

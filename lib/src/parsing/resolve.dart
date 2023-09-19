@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:meta/meta.dart';
-
 import '../ast/ast.dart';
 import '../program.dart';
 import '../source.dart';
@@ -77,7 +75,7 @@ Future<_ImportResolveResult> _resolveImports(
         continue;
       }
 
-      final Source importedSource = await program.loadSource(importUri);
+      final Source? importedSource = await program.loadSource(importUri);
 
       if (importedSource == null) {
         errors.add(ParseError($import.path.sourceSpan, 'Could not find source from import path.'));
@@ -102,10 +100,8 @@ Future<_ImportResolveResult> _resolveImports(
 
       // Create a library from the imported source
       final UserLibrary library = await program.loadUserLibrary(importedSource, importedNode);
-      
-      if (library.parseErrors != null) {
-        errors.addAll(library.parseErrors);
-      }
+
+      errors.addAll(library.parseErrors);
 
       // Mark this import as resolved
       resolvedImports[$import] = importUri;
@@ -145,10 +141,10 @@ class ResolveResult {
   final UnmodifiableMapView<ImportStatement, Uri> imports;
 
   ResolveResult({
-    @required this.errors,
-    @required this.locals,
-    @required this.publicVariables,
-    @required this.imports
+    required this.errors,
+    required this.locals,
+    required this.publicVariables,
+    required this.imports
   });
 }
 
@@ -222,15 +218,15 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
   void visitFor(ForStatement $for) {
     _loopScope(() {
       if ($for.initializer != null) {
-        _resolveStatement($for.initializer);
+        _resolveStatement($for.initializer!);
       }
 
       if ($for.condition != null) {
-        _resolveExpression($for.condition);
+        _resolveExpression($for.condition!);
       }
 
       if ($for.afterthought != null) {
-        _resolveExpression($for.afterthought);
+        _resolveExpression($for.afterthought!);
       }
 
       _resolveStatement($for.body);
@@ -247,8 +243,8 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
       _define(foreach.keyName);
 
       if (foreach.valueName != null) {
-        _declare(foreach.valueName);
-        _define(foreach.valueName);
+        _declare(foreach.valueName!);
+        _define(foreach.valueName!);
       }
 
       _resolveStatement(foreach.body);
@@ -264,11 +260,11 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
       }
 
       if (functionExpression.body.block != null) {
-        _resolveStatements(functionExpression.body.block);
+        _resolveStatements(functionExpression.body.block!);
       }
 
       if (functionExpression.body.expression != null) {
-        _resolveExpression(functionExpression.body.expression);
+        _resolveExpression(functionExpression.body.expression!);
       }
     });
   }
@@ -279,7 +275,7 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
       if (_scopes.isEmpty) {
         publicVariables.add(functionStatement.name.lexeme);
       } else {
-        _addError(functionStatement.publicKeyword, 
+        _addError(functionStatement.publicKeyword!, 
           'Only top-level functions can be public.'
         );
       }
@@ -295,11 +291,11 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
       }
 
       if (functionStatement.body.block != null) {
-        _resolveStatements(functionStatement.body.block);
+        _resolveStatements(functionStatement.body.block!);
       }
 
       if (functionStatement.body.expression != null) {
-        _resolveExpression(functionStatement.body.expression);
+        _resolveExpression(functionStatement.body.expression!);
       }
     });
   }
@@ -329,7 +325,7 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
     _resolveStatement($if.thenStatement);
 
     if ($if.elseStatement != null) {
-      _resolveStatement($if.elseStatement);
+      _resolveStatement($if.elseStatement!);
     }
   }
 
@@ -381,7 +377,7 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
     }
 
     if ($return.expression != null) {
-      _resolveExpression($return.expression);
+      _resolveExpression($return.expression!);
     }
   }
 
@@ -392,14 +388,14 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
     }
 
     if (tag.attributes != null) {
-      for (final Attribute attribute in tag.attributes) {
+      for (final Attribute attribute in tag.attributes!) {
         _resolveExpression(attribute.expression);
       }
     }
 
     if (tag.body != null) {
       _blockScope(() {
-        _resolveStatements(tag.body);
+        _resolveStatements(tag.body!);
       });
     }
   }
@@ -427,14 +423,14 @@ class _Resolver implements ExpressionVisitor<void>, StatementVisitor {
       if (_scopes.isEmpty) {
         publicVariables.add(variableStatement.name.lexeme);
       } else {
-        _addError(variableStatement.publicKeyword, 
+        _addError(variableStatement.publicKeyword!, 
           'Only top-level variables can be public.'
         );
       }
     }
 
     if (variableStatement.initializer != null) {
-      _resolveExpression(variableStatement.initializer);
+      _resolveExpression(variableStatement.initializer!);
     }
 
     _declare(variableStatement.name);

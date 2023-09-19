@@ -7,10 +7,7 @@ class WriteStatement implements Statement {
   final Token keyword;
   final Expression expression;
 
-  WriteStatement(this.keyword, this.expression) {
-    if (keyword == null) throw ArgumentError.notNull('keyword');
-    if (expression == null) throw ArgumentError.notNull('expression');
-  }
+  WriteStatement(this.keyword, this.expression);
 
   @override
   void accept(StatementVisitor visitor) {

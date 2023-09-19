@@ -8,11 +8,7 @@ class WhileStatement implements Statement {
   final Expression condition;
   final Statement body;
 
-  WhileStatement(this.keyword, this.condition, this.body) {
-    if (keyword == null) throw ArgumentError.notNull('keyword');
-    if (condition == null) throw ArgumentError.notNull('condition');
-    if (body == null) throw ArgumentError.notNull('body');
-  }
+  WhileStatement(this.keyword, this.condition, this.body);
 
   @override
   void accept(StatementVisitor visitor) {

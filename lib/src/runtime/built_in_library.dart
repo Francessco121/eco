@@ -54,10 +54,10 @@ abstract class BuiltInLibrary implements Library {
 
   /// Utility function to parse a boolean from function [args].
   @protected
-  bool parseBoolean(Map<String, RuntimeValue> args, String paramName, {
+  bool? parseBoolean(Map<String, RuntimeValue?> args, String paramName, {
     bool allowNull = false
   }) {
-    final RuntimeValue value = args[paramName];
+    final RuntimeValue value = args[paramName]!;
 
     if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
@@ -72,10 +72,10 @@ abstract class BuiltInLibrary implements Library {
 
   /// Utility function to parse a double from function [args].
   @protected
-  double parseDouble(Map<String, RuntimeValue> args, String paramName, {
+  double? parseDouble(Map<String, RuntimeValue?> args, String paramName, {
     bool allowNull = false
   }) {
-    final RuntimeValue value = args[paramName];
+    final RuntimeValue value = args[paramName]!;
 
     if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
@@ -90,10 +90,10 @@ abstract class BuiltInLibrary implements Library {
 
   /// Utility function to parse an integer from function [args].
   @protected
-  int parseInteger(Map<String, RuntimeValue> args, String paramName, {
+  int? parseInteger(Map<String, RuntimeValue?> args, String paramName, {
     bool allowNull = false
   }) {
-    final RuntimeValue value = args[paramName];
+    final RuntimeValue value = args[paramName]!;
 
     if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
@@ -112,10 +112,10 @@ abstract class BuiltInLibrary implements Library {
 
   /// Utility function to parse a string from function [args].
   @protected
-  String parseString(Map<String, RuntimeValue> args, String paramName, {
+  String? parseString(Map<String, RuntimeValue?> args, String paramName, {
     bool allowNull = false
   }) {
-    final RuntimeValue value = args[paramName];
+    final RuntimeValue value = args[paramName]!;
 
     if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
@@ -130,10 +130,10 @@ abstract class BuiltInLibrary implements Library {
 
   /// Utility function to parse a list from function [args].
   @protected
-  List<RuntimeValue> parseList(Map<String, RuntimeValue> args, String paramName, {
+  List<RuntimeValue>? parseList(Map<String, RuntimeValue?> args, String paramName, {
     bool allowNull = false
   }) {
-    final RuntimeValue value = args[paramName];
+    final RuntimeValue value = args[paramName]!;
 
     if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
@@ -148,10 +148,10 @@ abstract class BuiltInLibrary implements Library {
 
   /// Utility function to parse a map from function [args].
   @protected
-  Map<RuntimeValue, RuntimeValue> parseMap(Map<String, RuntimeValue> args, String paramName, {
+  Map<RuntimeValue, RuntimeValue>? parseMap(Map<String, RuntimeValue?> args, String paramName, {
     bool allowNull = false
   }) {
-    final RuntimeValue value = args[paramName];
+    final RuntimeValue value = args[paramName]!;
 
     if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
@@ -166,10 +166,10 @@ abstract class BuiltInLibrary implements Library {
 
   /// Utility function to parse a function from function [args].
   @protected
-  Callable parseFunction(Map<String, RuntimeValue> args, String paramName, {
+  Callable? parseFunction(Map<String, RuntimeValue?> args, String paramName, {
     bool allowNull = false
   }) {
-    final RuntimeValue value = args[paramName];
+    final RuntimeValue value = args[paramName]!;
 
     if (allowNull && value.type == RuntimeValueType.$null) {
       return null;
@@ -184,10 +184,10 @@ abstract class BuiltInLibrary implements Library {
 
   /// Utility function to parse a library from function [args].
   @protected
-  LibraryEnvironment parseLibrary(Map<String, RuntimeValue> args, String paramName, {
+  LibraryEnvironment? parseLibrary(Map<String, RuntimeValue?> args, String paramName, {
     bool allowNull = false
   }) {
-    final RuntimeValue value = args[paramName];
+    final RuntimeValue value = args[paramName]!;
 
     if (allowNull && value.type == RuntimeValueType.$null) {
       return null;

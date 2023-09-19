@@ -14,8 +14,8 @@ abstract class ViewCompiler {
   Future<String> compile(Source source);
 
   factory ViewCompiler({
-    SourceResolver sourceResolver,
-    StandardLibraryOptions standardLibraryOptions
+    SourceResolver? sourceResolver,
+    StandardLibraryOptions? standardLibraryOptions
   }) {
     return ViewCompilerInternal(
       sourceResolver: sourceResolver,

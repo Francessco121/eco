@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:meta/meta.dart';
 import 'package:source_span/source_span.dart';
 
 import 'ast/ast.dart';
@@ -17,7 +16,7 @@ import 'source_tree.dart';
 
 class UserLibrary implements Library {
   @override
-  final Uri uri;
+  final Uri? uri;
 
   final UnmodifiableListView<Statement> statements;
 
@@ -28,19 +27,13 @@ class UserLibrary implements Library {
   final UnmodifiableListView<ParseError> parseErrors;
 
   UserLibrary._({
-    @required this.uri,
-    @required this.statements,
-    @required this.locals,
-    @required this.publicVariables,
-    @required this.parseErrors,
-    @required this.imports
-  }) {
-    if (statements == null) throw ArgumentError.notNull('statements');
-    if (locals == null) throw ArgumentError.notNull('locals');
-    if (publicVariables == null) throw ArgumentError.notNull('publicVariables');
-    if (parseErrors == null) throw ArgumentError.notNull('parseErrors');
-    if (imports == null) throw ArgumentError.notNull('imports');
-  }
+    required this.uri,
+    required this.statements,
+    required this.locals,
+    required this.publicVariables,
+    required this.parseErrors,
+    required this.imports
+  });
 
   @override
   void run(Program program, LibraryEnvironment environment) {

@@ -1,8 +1,7 @@
 # Analyzer rules and documentation, see https://www.dartlang.org/guides/language/analysis-options
 analyzer:
-  strong-mode:
-    # Disable implicit downcasts
-    implicit-casts: false
+  language:
+    strict-casts: false
   errors:
     await_only_futures: error
     missing_required_param: error
@@ -18,13 +17,11 @@ linter:
     - avoid_types_as_parameter_names
     - cancel_subscriptions
     - close_sinks
+    - collection_methods_unrelated_type
     - comment_references
     - control_flow_in_finally
     - empty_statements
     - hash_and_equals
-    - invariant_booleans
-    - iterable_contains_unrelated_type
-    - list_remove_unrelated_type
     - no_adjacent_strings_in_list
     - no_duplicate_case_values
     - prefer_void_to_null
@@ -36,7 +33,6 @@ linter:
     # Styles
     - always_declare_return_types
     - always_put_required_named_parameters_first
-    - always_require_non_null_named_parameters
     - annotate_overrides
     - avoid_bool_literals_in_conditional_expressions
     - avoid_catches_without_on_clauses
@@ -47,7 +43,6 @@ linter:
     - avoid_positional_boolean_parameters
     - avoid_renaming_method_parameters
     - avoid_return_types_on_setters
-    - avoid_returning_null
     - avoid_returning_this
     - avoid_setters_without_getters
     - avoid_single_cascade_in_expression_statements
@@ -74,7 +69,6 @@ linter:
     - prefer_const_literals_to_create_immutables
     - prefer_constructors_over_static_methods
     - prefer_contains
-    - prefer_equal_for_default_values
     - prefer_final_fields
     - prefer_initializing_formals
     - prefer_is_empty

@@ -8,11 +8,7 @@ class AssignmentExpression implements Expression {
 
   final Token equalSign;
 
-  AssignmentExpression(this.target, this.value, this.equalSign) {
-    if (target == null) throw ArgumentError.notNull('target');
-    if (value == null) throw ArgumentError.notNull('value');
-    if (equalSign == null) throw ArgumentError.notNull('equalSign');
-  }
+  AssignmentExpression(this.target, this.value, this.equalSign);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

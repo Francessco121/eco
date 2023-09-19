@@ -6,21 +6,21 @@ import 'runtime_value_type.dart';
 class RuntimeValue {
   final RuntimeValueType type;
 
-  bool get boolean => _boolean;
-  double get number => _number;
-  String get string => _string;
-  List<RuntimeValue> get list => _list;
-  Map<RuntimeValue, RuntimeValue> get map => _map;
-  Callable get function => _function;
-  LibraryEnvironment get library => _library;
+  bool get boolean => _boolean!;
+  double get number => _number!;
+  String get string => _string!;
+  List<RuntimeValue> get list => _list!;
+  Map<RuntimeValue, RuntimeValue> get map => _map!;
+  Callable get function => _function!;
+  LibraryEnvironment get library => _library!;
 
-  bool _boolean;
-  double _number;
-  String _string;
-  List<RuntimeValue> _list;
-  Map<RuntimeValue, RuntimeValue> _map;
-  Callable _function;
-  LibraryEnvironment _library;
+  bool? _boolean;
+  double? _number;
+  String? _string;
+  List<RuntimeValue>? _list;
+  Map<RuntimeValue, RuntimeValue>? _map;
+  Callable? _function;
+  LibraryEnvironment? _library;
 
   RuntimeValue.fromNull()
     : type = RuntimeValueType.$null;
@@ -84,8 +84,6 @@ class RuntimeValue {
       case RuntimeValueType.number: return _number.hashCode;
       case RuntimeValueType.string: return _string.hashCode;
     }
-
-    throw UnimplementedError();
   }
 
   @override
@@ -97,9 +95,8 @@ class RuntimeValue {
       case RuntimeValueType.library: return _library.toString();
       case RuntimeValueType.list: return 'list';
       case RuntimeValueType.map: return 'map';
-      case RuntimeValueType.number: return _numberToString(_number);
-      case RuntimeValueType.string: return _string;
-      default: throw UnimplementedError();
+      case RuntimeValueType.number: return _numberToString(_number!);
+      case RuntimeValueType.string: return _string!;
     }
   }
 
@@ -113,7 +110,6 @@ class RuntimeValue {
       case RuntimeValueType.map: return 'map';
       case RuntimeValueType.number: return 'number';
       case RuntimeValueType.string: return 'string';
-      default: throw UnimplementedError();
     }
   }
 

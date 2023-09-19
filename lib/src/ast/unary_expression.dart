@@ -6,10 +6,7 @@ class UnaryExpression implements Expression {
   final Expression expression;
   final Token $operator;
 
-  UnaryExpression(this.expression, this.$operator) {
-    if (expression == null) throw ArgumentError.notNull('expression');
-    if ($operator == null) throw ArgumentError.notNull('\$operator');
-  }
+  UnaryExpression(this.expression, this.$operator);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

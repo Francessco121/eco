@@ -7,11 +7,7 @@ class WhenExpression implements Expression {
   final Expression condition;
   final Token keyword;
 
-  WhenExpression(this.expression, this.condition, this.keyword) {
-    if (expression == null) throw ArgumentError.notNull('expression');
-    if (condition == null) throw ArgumentError.notNull('condition');
-    if (keyword == null) throw ArgumentError.notNull('keyword');
-  }
+  WhenExpression(this.expression, this.condition, this.keyword);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

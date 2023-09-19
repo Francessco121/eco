@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import '../ast/ast.dart';
 import '../parsing/token.dart';
 import '../parsing/token_type.dart';
@@ -49,9 +47,9 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   @override
   final UserLibrary library;
 
-  Scope _currentScope;
+  Scope? _currentScope;
 
-  StringBuffer _currentTagBuffer;
+  StringBuffer? _currentTagBuffer;
 
   final CallContext _callContext;
   final Program _program;
@@ -62,7 +60,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   @override
   void interpret(List<Statement> statements, Scope scope) {
     // Save the current scope so we can restore it after
-    final Scope previousScope = _currentScope;
+    final Scope? previousScope = _currentScope;
 
     try {
       // Update the current scope
@@ -81,7 +79,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   @override
   RuntimeValue interpretExpression(Expression expression, Scope scope) {
     // Save the current scope so we can restore it after
-    final Scope previousScope = _currentScope;
+    final Scope? previousScope = _currentScope;
 
     // Update the current scope
     _currentScope = scope;
@@ -230,7 +228,6 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
         }
 
         _error(binary.$operator, 'Concatenation operands must both be strings or lists.');
-        break; // Just to make the analyzer happy... _error always throws
       default:
         _error(binary.$operator, 'Unknown binary operator.');
     }
@@ -251,7 +248,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   RuntimeValue visitCall(CallExpression call) {
     // Store the previous tag buffer and set the current to null
     // since making a call leaves tag context
-    final StringBuffer previousTagBuffer = _currentTagBuffer;
+    final StringBuffer? previousTagBuffer = _currentTagBuffer;
     _currentTagBuffer = null;
 
     // Evaluate the target
@@ -260,7 +257,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     if (callee.type == RuntimeValueType.function) {
       final Callable callable = callee.function;
 
-      final Map<String, RuntimeValue> mappedArguments = {};
+      final Map<String, RuntimeValue?> mappedArguments = {};
 
       // Map positional arguments
       if (call.arguments.positional.length > callable.parameters.length) {
@@ -302,7 +299,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
       // Run the callable
       try {
-        final RuntimeValue callableResult = callable.call(
+        final RuntimeValue? callableResult = callable.call(
           _callContext,
           mappedArguments
         );
@@ -334,7 +331,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   @override
   void visitFor(ForStatement $for) {
     // Capture the current scope so we can reset it after
-    final Scope outerScope = _currentScope;
+    final Scope? outerScope = _currentScope;
 
     try {
       // Create a scope for the for-loop clauses
@@ -342,14 +339,14 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
       // Run the initialization statement if present
       if ($for.initializer != null) {
-        _execute($for.initializer);
+        _execute($for.initializer!);
       }
 
       // Loop until the condition is false
       while (true) {
         // Check condition
         if ($for.condition != null) {
-          final RuntimeValue value = _evaluate($for.condition);
+          final RuntimeValue value = _evaluate($for.condition!);
 
           if (value.type == RuntimeValueType.boolean) {
             if (!value.boolean) {
@@ -369,7 +366,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
 
         // Evaluate the afterthought if present
         if ($for.afterthought != null) {
-          _evaluate($for.afterthought);
+          _evaluate($for.afterthought!);
         }
       }
     } on _Break {
@@ -382,7 +379,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   @override
   void visitForeach(ForeachStatement foreach) {
     // Capture the current scope so we can reset it after
-    final Scope outerScope = _currentScope;
+    final Scope? outerScope = _currentScope;
 
     try {
       // Evaluate the iterable
@@ -392,20 +389,20 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
       _currentScope = new Scope(outerScope);
 
       // Define key and values variables
-      _currentScope.define(foreach.keyName.lexeme, RuntimeValue.fromNull());
+      _currentScope!.define(foreach.keyName.lexeme, RuntimeValue.fromNull());
       
       if (foreach.valueName != null) {
-        _currentScope.define(foreach.valueName.lexeme, RuntimeValue.fromNull());
+        _currentScope!.define(foreach.valueName!.lexeme, RuntimeValue.fromNull());
       }
 
       // Iterate
       if (iterable.type == RuntimeValueType.list) {
         for (int i = 0; i < iterable.list.length; i++) {
           // Update key and value variables
-          _currentScope.assign(foreach.keyName, RuntimeValue.fromNumber(i.toDouble()));
+          _currentScope!.assign(foreach.keyName, RuntimeValue.fromNumber(i.toDouble()));
 
           if (foreach.valueName != null) {
-            _currentScope.assign(foreach.valueName, iterable.list[i]);
+            _currentScope!.assign(foreach.valueName!, iterable.list[i]);
           }
 
           // Execute the loop body
@@ -418,10 +415,10 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
       } else if (iterable.type == RuntimeValueType.map) {
         iterable.map.forEach((key, value) {
           // Update key and value variables
-          _currentScope.assign(foreach.keyName, key);
+          _currentScope!.assign(foreach.keyName, key);
 
           if (foreach.valueName != null) {
-            _currentScope.assign(foreach.valueName, value);
+            _currentScope!.assign(foreach.valueName!, value);
           }
 
           // Execute the loop body
@@ -451,7 +448,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
           .map(_convertParameter)
           .toList(),
         body: functionExpression.body,
-        closure: _currentScope,
+        closure: _currentScope!,
         name: null, // Anonymous functions don't have names,
         interpreter: this
       )
@@ -465,14 +462,14 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
         .map(_convertParameter)
         .toList(),
       body: functionStatement.body,
-      closure: _currentScope,
+      closure: _currentScope!,
       name: functionStatement.name.lexeme,
       interpreter: this
     );
 
     final Scope scope = functionStatement.publicKeyword != null
       ? environment.publicScope
-      : _currentScope;
+      : _currentScope!;
 
     scope.define(functionStatement.name.lexeme, RuntimeValue.fromFunction(function));
   }
@@ -503,7 +500,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   @override
   RuntimeValue visitHtml(HtmlExpression html) {
     // Store the previous tag buffer so we can restore it later
-    final StringBuffer previousTagBuffer = _currentTagBuffer;
+    final StringBuffer? previousTagBuffer = _currentTagBuffer;
 
     // Create a new tag buffer
     _currentTagBuffer = new StringBuffer();
@@ -529,7 +526,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
       if (conditionValue.boolean) {
         _execute($if.thenStatement);
       } else if ($if.elseStatement != null) {
-        _execute($if.elseStatement);
+        _execute($if.elseStatement!);
       }
     } else {
       _error($if.ifKeyword, 'If condition must evaluate to a boolean.');
@@ -539,15 +536,15 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   @override
   void visitImport(ImportStatement $import) {
     // Get the imported library
-    final Uri importedLibraryUri = library.imports[$import];
-    final Library importedLibrary = _program.libraries[importedLibraryUri];
+    final Uri importedLibraryUri = library.imports[$import]!;
+    final Library importedLibrary = _program.libraries[importedLibraryUri]!;
   
     // Load the library's environment for the program
     final LibraryEnvironment importedEnvironment = 
       _program.loadEnvironment(importedLibrary);
 
     // Define the import under the specified 'as' identifier
-    _currentScope.define(
+    _currentScope!.define(
       $import.asIdentifier.lexeme, 
       RuntimeValue.fromLibrary(importedEnvironment)
     );
@@ -666,7 +663,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     RuntimeValue value;
 
     if ($return.expression != null) {
-      value = _evaluate($return.expression);
+      value = _evaluate($return.expression!);
     } else {
       value = RuntimeValue.fromNull();
     }
@@ -678,12 +675,12 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   @override
   void visitTag(TagStatement tag) {
     // Write the opening tag
-    _currentTagBuffer.write('<');
-    _currentTagBuffer.write(tag.name.lexeme);
+    _currentTagBuffer!.write('<');
+    _currentTagBuffer!.write(tag.name.lexeme);
 
     // Write the attributes
     if (tag.attributes != null) {
-      for (final Attribute attribute in tag.attributes) {
+      for (final Attribute attribute in tag.attributes!) {
         final RuntimeValue attributeValue = _evaluate(attribute.expression);
 
         if (attributeValue.type == RuntimeValueType.$null) {
@@ -698,22 +695,22 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
           }
         }
 
-        _currentTagBuffer.write(' ');
+        _currentTagBuffer!.write(' ');
 
         // Write attribute name
-        _currentTagBuffer.write(attribute.name.lexeme);
+        _currentTagBuffer!.write(attribute.name.lexeme);
 
         // Only write the attribute value if the value is a string, number, list, or map
         if (attributeValue.type == RuntimeValueType.string) {
-          _currentTagBuffer.write('="');
-          _currentTagBuffer.write(_escapeAttribute(attributeValue.string));
-          _currentTagBuffer.write('"');
+          _currentTagBuffer!.write('="');
+          _currentTagBuffer!.write(_escapeAttribute(attributeValue.string));
+          _currentTagBuffer!.write('"');
         } else if (attributeValue.type == RuntimeValueType.number) {
-          _currentTagBuffer.write('="');
-          _currentTagBuffer.write(_escapeAttribute(attributeValue.toString()));
-          _currentTagBuffer.write('"');
+          _currentTagBuffer!.write('="');
+          _currentTagBuffer!.write(_escapeAttribute(attributeValue.toString()));
+          _currentTagBuffer!.write('"');
         } else if (attributeValue.type == RuntimeValueType.list) {
-          _currentTagBuffer.write('="');
+          _currentTagBuffer!.write('="');
 
           // Write the list as a space separated list
           bool first = true;
@@ -732,16 +729,16 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
             }
 
             if (!first) {
-              _currentTagBuffer.write(' ');
+              _currentTagBuffer!.write(' ');
             }
 
-            _currentTagBuffer.write(_escapeAttribute(value.toString()));
+            _currentTagBuffer!.write(_escapeAttribute(value.toString()));
             first = false;
           }
 
-          _currentTagBuffer.write('"');
+          _currentTagBuffer!.write('"');
         } else if (attributeValue.type == RuntimeValueType.map) {
-          _currentTagBuffer.write('="');
+          _currentTagBuffer!.write('="');
 
           // Write the list as a semicolon separated list of key:value pairs
           bool first = true;
@@ -760,17 +757,17 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
             }
 
             if (!first) {
-              _currentTagBuffer.write(';');
+              _currentTagBuffer!.write(';');
             }
 
-            _currentTagBuffer.write(_escapeAttribute(key.toString()));
-            _currentTagBuffer.write(': ');
-            _currentTagBuffer.write(_escapeAttribute(value.toString()));
+            _currentTagBuffer!.write(_escapeAttribute(key.toString()));
+            _currentTagBuffer!.write(': ');
+            _currentTagBuffer!.write(_escapeAttribute(value.toString()));
 
             first = false;
           });
 
-          _currentTagBuffer.write('"');
+          _currentTagBuffer!.write('"');
         } else if (attributeValue.type != RuntimeValueType.boolean) {
           _error(attribute.name, 
             'Attribute value must evaluate to null, a boolean, a string, a number, a list, or a map.'
@@ -782,18 +779,18 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     // Run the optional tag body
     if (tag.body != null) {
       // Write the end of the opening tag
-      _currentTagBuffer.write('>');
+      _currentTagBuffer!.write('>');
 
       // Execute body
-      _executeBlock(tag.body);
+      _executeBlock(tag.body!);
 
       // Write the closing tag
-      _currentTagBuffer.write('</');
-      _currentTagBuffer.write(tag.name.lexeme);
-      _currentTagBuffer.writeln('>');
+      _currentTagBuffer!.write('</');
+      _currentTagBuffer!.write(tag.name.lexeme);
+      _currentTagBuffer!.writeln('>');
     } else {
       // Write the end of the opening tag
-      _currentTagBuffer.writeln(' />');
+      _currentTagBuffer!.writeln(' />');
     }
   }
 
@@ -826,10 +823,10 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
         if (value.type == RuntimeValueType.number) {
           if (unary.$operator.type == TokenType.plusPlus) {
             // value++
-            _currentScope.assign(expression.name, RuntimeValue.fromNumber(value.number + 1));
+            _currentScope!.assign(expression.name, RuntimeValue.fromNumber(value.number + 1));
           } else {
             // value--
-            _currentScope.assign(expression.name, RuntimeValue.fromNumber(value.number - 1));
+            _currentScope!.assign(expression.name, RuntimeValue.fromNumber(value.number - 1));
           }
         }
 
@@ -865,7 +862,6 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
         }
 
         _error(unary.$operator, 'Unary length operand must be a list, map, or string.');
-        break; // Just to make the analyzer happy... _error always throws.
       default:
         _error(unary.$operator, 'Unknown unary operator.');
     }
@@ -882,7 +878,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     RuntimeValue value;
 
     if (variableStatement.initializer != null) {
-      value = _evaluate(variableStatement.initializer);
+      value = _evaluate(variableStatement.initializer!);
     } else {
       value = new RuntimeValue.fromNull();
     }
@@ -890,7 +886,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
     // Define variable
     final Scope scope = variableStatement.publicKeyword != null
       ? environment.publicScope
-      : _currentScope;
+      : _currentScope!;
 
     scope.define(variableStatement.name.lexeme, value);
   }
@@ -951,7 +947,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
       return;
     }
 
-    _currentTagBuffer.write(value.toString());
+    _currentTagBuffer!.write(value.toString());
   }
 
   String _escapeAttribute(String attribute) {
@@ -963,7 +959,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
       parameter.identifier.lexeme,
       defaultValue: parameter.defaultValue == null
         ? null
-        : _evaluate(parameter.defaultValue)
+        : _evaluate(parameter.defaultValue!)
     );
   }
 
@@ -976,7 +972,7 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   }
 
   void _executeBlock(List<Statement> statements) {
-    final Scope previousScope = _currentScope;
+    final Scope? previousScope = _currentScope;
 
     try {
       // Make a new scope for the block
@@ -993,27 +989,26 @@ class _InterpreterBase implements Interpreter, ExpressionVisitor<RuntimeValue>, 
   }
 
   RuntimeValue _lookUpVariable(Token name, Expression expression) {
-    final int distance = library.locals[expression];
+    final int? distance = library.locals[expression];
 
     if (distance != null) {
-      return _currentScope.getAt(distance, name.lexeme);
+      return _currentScope!.getAt(distance, name.lexeme);
     } else {
       return environment.libraryScope.get(name);
     }
   }
 
   void _assignVariable(Token name, Expression expression, RuntimeValue value) {
-    final int distance = library.locals[expression];
+    final int? distance = library.locals[expression];
 
     if (distance != null) {
-      _currentScope.assignAt(distance, name, value);
+      _currentScope!.assignAt(distance, name, value);
     } else {
       environment.libraryScope.assign(name, value);
     }
   }
 
-  @alwaysThrows
-  void _error(Token token, String message) {
+  Never _error(Token token, String message) {
     throw RuntimeException(token.sourceSpan, message);
   }
 

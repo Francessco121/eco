@@ -15,7 +15,7 @@ class SystemLibrary extends BuiltInLibrary {
     defineFunction(BuiltInFunction(
       (_, args) {
         if (options.systemPrintCallback != null) {
-          options.systemPrintCallback(args['message'].toString() ?? 'null');
+          options.systemPrintCallback!(args['message']?.toString() ?? 'null');
         }
 
         return null;

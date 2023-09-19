@@ -5,9 +5,7 @@ import 'statement_visitor.dart';
 class BreakStatement implements Statement {
   final Token keyword;
 
-  BreakStatement(this.keyword) {
-    if (keyword == null) throw ArgumentError.notNull('keyword');
-  }
+  BreakStatement(this.keyword);
 
   @override
   void accept(StatementVisitor visitor) {

@@ -9,5 +9,5 @@ abstract class Callable {
   UnmodifiableListView<FunctionParameter> get parameters;
 
   /// Runs this callable with the given [arguments] and [context].
-  RuntimeValue call(CallContext context, Map<String, RuntimeValue> arguments);
+  RuntimeValue? call(CallContext context, Map<String, RuntimeValue?> arguments);
 }

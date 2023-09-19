@@ -1,7 +1,5 @@
 import 'dart:collection';
 
-import 'package:meta/meta.dart';
-
 import '../ast/ast.dart';
 import 'callable.dart';
 import 'function_parameter.dart';
@@ -15,19 +13,19 @@ class UserFunction implements Callable {
   @override
   UnmodifiableListView<FunctionParameter> get parameters => _parametersView;
 
-  UnmodifiableListView<FunctionParameter> _parametersView;
+  late final UnmodifiableListView<FunctionParameter> _parametersView;
 
   final FunctionBody _body;
   final Scope _closure;
-  final String _name;
+  final String? _name;
   final Interpreter _interpreter;
 
   UserFunction({
-    @required List<FunctionParameter> parameters,
-    @required FunctionBody body,
-    @required Scope closure,
-    @required String name,
-    @required Interpreter interpreter
+    required List<FunctionParameter> parameters,
+    required FunctionBody body,
+    required Scope closure,
+    required String? name,
+    required Interpreter interpreter
   })
     : _body = body,
       _closure = closure,
@@ -38,7 +36,7 @@ class UserFunction implements Callable {
   }
 
   @override
-  RuntimeValue call(_, Map<String, RuntimeValue> arguments) {
+  RuntimeValue? call(_, Map<String, RuntimeValue?> arguments) {
     // Create a new scope for the function body
     final scope = new Scope(_closure);
 
@@ -52,14 +50,14 @@ class UserFunction implements Callable {
     if (_body.block != null) {
       // Block body
       try {
-        _interpreter.interpret(_body.block, scope);
+        _interpreter.interpret(_body.block!, scope);
       } on Return catch (ex) {
         // Function ended early with a return statement
         return ex.value;
       }
     } else if (_body.expression != null) {
       // Expression body
-      return _interpreter.interpretExpression(_body.expression, scope);
+      return _interpreter.interpretExpression(_body.expression!, scope);
     }
 
     // Default to a null return value

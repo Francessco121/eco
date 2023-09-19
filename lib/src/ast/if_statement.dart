@@ -7,12 +7,9 @@ class IfStatement implements Statement {
   final Token ifKeyword;
   final Expression condition;
   final Statement thenStatement;
-  final Statement elseStatement;
+  final Statement? elseStatement;
 
-  IfStatement(this.ifKeyword, this.condition, this.thenStatement, [this.elseStatement]) {
-    if (condition == null) throw ArgumentError.notNull('condition');
-    if (thenStatement == null) throw ArgumentError.notNull('thenStatement');
-  }
+  IfStatement(this.ifKeyword, this.condition, this.thenStatement, [this.elseStatement]);
 
   @override
   void accept(StatementVisitor visitor) {

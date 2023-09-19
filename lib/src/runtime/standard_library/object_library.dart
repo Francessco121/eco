@@ -25,7 +25,7 @@ class ObjectLibrary extends BuiltInLibrary {
     // typeOf
     defineFunction(BuiltInFunction(
       (_, args) {
-        final RuntimeValue arg = args['object'];
+        final RuntimeValue arg = args['object']!;
 
         return RuntimeValue.fromString(arg.toTypeString());
       },

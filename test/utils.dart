@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:eco/eco.dart';
 import 'package:eco/runtime.dart';
 
 /// Runs an Eco [script].

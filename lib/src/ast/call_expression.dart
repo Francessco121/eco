@@ -9,11 +9,7 @@ class CallExpression implements Expression {
 
   final Token openParen;
 
-  CallExpression(this.callee, this.arguments, this.openParen) {
-    if (callee == null) throw ArgumentError.notNull('callee');
-    if (arguments == null) throw ArgumentError.notNull('arguments');
-    if (openParen == null) throw ArgumentError.notNull('openParen');
-  }
+  CallExpression(this.callee, this.arguments, this.openParen);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

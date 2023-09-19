@@ -2,7 +2,7 @@ import 'dart:collection';
 
 class SourceTree {
   UnmodifiableMapView<Uri, SourceTreeNode> get roots => _rootsView;
-  UnmodifiableMapView<Uri, SourceTreeNode> _rootsView;
+  late final UnmodifiableMapView<Uri, SourceTreeNode> _rootsView;
 
   final Map<Uri, SourceTreeNode> _roots = {};
 
@@ -19,11 +19,11 @@ class SourceTree {
 }
 
 class SourceTreeNode {
-  final Uri uri;
-  final SourceTreeNode parent;
+  final Uri? uri;
+  final SourceTreeNode? parent;
 
   UnmodifiableListView<SourceTreeNode> get children => _childrenView;
-  UnmodifiableListView<SourceTreeNode> _childrenView;
+  late final UnmodifiableListView<SourceTreeNode> _childrenView;
 
   final List<SourceTreeNode> _children = [];
 
@@ -38,8 +38,8 @@ class SourceTreeNode {
     return child;
   }
 
-  SourceTreeNode getAncestor(Uri sourceUri) {
-    SourceTreeNode parent = this.parent;
+  SourceTreeNode? getAncestor(Uri sourceUri) {
+    SourceTreeNode? parent = this.parent;
     while (parent != null) {
       if (parent.uri == sourceUri) {
         return parent;
@@ -51,10 +51,10 @@ class SourceTreeNode {
     return null;
   }
 
-  List<SourceTreeNode> getAncestors({Uri untilSourceUri}) {
+  List<SourceTreeNode> getAncestors({Uri? untilSourceUri}) {
     final List<SourceTreeNode> ancestors = [];
 
-    SourceTreeNode parent = this.parent;
+    SourceTreeNode? parent = this.parent;
     while (parent != null) {
       if (parent.uri == untilSourceUri) {
         break;

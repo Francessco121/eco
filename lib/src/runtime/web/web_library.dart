@@ -22,8 +22,8 @@ class WebLibrary extends BuiltInLibrary {
       (context, args) {
         final View view = _viewCompiler.getView(context.callingLibrary);
         
-        if (view.child != null && view.child.parentModel != null) {
-          return view.child.parentModel;
+        if (view.child != null && view.child!.parentModel != null) {
+          return view.child!.parentModel!;
         } else {
           return RuntimeValue.fromNull();
         }
@@ -35,8 +35,8 @@ class WebLibrary extends BuiltInLibrary {
     // inherit
     defineFunction(BuiltInFunction(
       (context, args) {
-        final String parentViewPath = parseString(args, 'path');
-        final RuntimeValue model = args['model'];
+        final String parentViewPath = parseString(args, 'path')!;
+        final RuntimeValue? model = args['model'];
         
         final View view = _viewCompiler.getView(context.callingLibrary);
         view.parentViewPath = parentViewPath;
@@ -54,7 +54,7 @@ class WebLibrary extends BuiltInLibrary {
     // view
     defineFunction(BuiltInFunction(
       (context, args) {
-        final String content = parseString(args, 'content');
+        final String content = parseString(args, 'content')!;
 
         final View view = _viewCompiler.getView(context.callingLibrary);
         view.content = content;
@@ -70,8 +70,8 @@ class WebLibrary extends BuiltInLibrary {
     // stack
     defineFunction(BuiltInFunction(
       (context, args) {
-        final String stackName = parseString(args, 'name');
-        final String content = parseString(args, 'content');
+        final String stackName = parseString(args, 'name')!;
+        final String content = parseString(args, 'content')!;
         
         final View view = _viewCompiler.getView(context.callingLibrary);
         
@@ -89,7 +89,7 @@ class WebLibrary extends BuiltInLibrary {
     // drawStack
     defineFunction(BuiltInFunction(
       (context, args) {
-        final String stackName = parseString(args, 'name');
+        final String stackName = parseString(args, 'name')!;
 
         View view = _viewCompiler.getView(context.callingLibrary);
 
@@ -97,14 +97,14 @@ class WebLibrary extends BuiltInLibrary {
         final buffer = new StringBuffer();
 
         void addStackViews(View view) {
-          final String content = view.stackViews[stackName];
+          final String? content = view.stackViews[stackName];
 
           if (content != null) {
             buffer.write(content);
           }
 
           if (view.child != null) {
-            addStackViews(view.child);
+            addStackViews(view.child!);
           }
         }
 
@@ -123,8 +123,8 @@ class WebLibrary extends BuiltInLibrary {
       (context, args) {
         final View view = _viewCompiler.getView(context.callingLibrary);
 
-        if (view.child != null && view.child.content != null) {
-          return RuntimeValue.fromString(view.child.content);
+        if (view.child != null && view.child!.content != null) {
+          return RuntimeValue.fromString(view.child!.content!);
         } else {
           return RuntimeValue.fromString('');
         }
@@ -136,7 +136,7 @@ class WebLibrary extends BuiltInLibrary {
     // makeStyle
     defineFunction(BuiltInFunction(
       (_, args) {
-        final Map<RuntimeValue, RuntimeValue> map = parseMap(args, 'map');
+        final Map<RuntimeValue, RuntimeValue> map = parseMap(args, 'map')!;
 
         final buffer = new StringBuffer();
 
@@ -164,7 +164,7 @@ class WebLibrary extends BuiltInLibrary {
     // makeClass
     defineFunction(BuiltInFunction(
       (_, args) {
-        final Map<RuntimeValue, RuntimeValue> map = parseMap(args, 'map');
+        final Map<RuntimeValue, RuntimeValue> map = parseMap(args, 'map')!;
 
         final buffer = new StringBuffer();
         int pair = 0;

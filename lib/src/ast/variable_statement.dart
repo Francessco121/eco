@@ -5,12 +5,10 @@ import 'statement_visitor.dart';
 
 class VariableStatement implements Statement {
   final Token name;
-  final Expression initializer;
-  final Token publicKeyword;
+  final Expression? initializer;
+  final Token? publicKeyword;
 
-  VariableStatement(this.name, {this.initializer, this.publicKeyword}) {
-    if (name == null) throw ArgumentError.notNull('name');
-  }
+  VariableStatement(this.name, {this.initializer, this.publicKeyword});
 
   @override
   void accept(StatementVisitor visitor) {

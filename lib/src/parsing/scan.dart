@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:charcode/charcode.dart';
-import 'package:meta/meta.dart';
 import 'package:source_span/source_span.dart';
 import 'package:string_scanner/string_scanner.dart';
 
@@ -36,8 +35,6 @@ const Map<String, TokenType> _keywords = {
 
 /// Scans the Eco [source] into a list of [Token]s.
 ScanResult scan(SourceSpan source) {
-  if (source == null) throw new ArgumentError.notNull('source');
-
   final scanner = _Scanner(source);
   
   return scanner.scan();
@@ -48,24 +45,24 @@ class ScanResult {
   final UnmodifiableListView<Token> tokens;
 
   const ScanResult({
-    @required this.tokens,
-    @required this.errors
+    required this.tokens,
+    required this.errors
   });
 }
 
 class _Scanner {
   /// The offset which [_lexemeBuffer] currently starts at.
-  int _startOffset;
+  int _startOffset = 0;
   /// The column which [_lexemeBuffer] currently starts at.
-  int _startColumn;
+  int _startColumn = 0;
   /// The line which [_lexemeBuffer] currently starts at.
-  int _startLine;
+  int _startLine = 0;
 
   int _currentOffset = 0;
   int _currentLine = 0;
   int _currentColumn = 0;
 
-  int _current;
+  int _current = 0;
 
   final List<Token> _tokens = [];
   final List<ParseError> _errors = [];
@@ -74,8 +71,7 @@ class _Scanner {
   final StringScanner _scanner;
 
   _Scanner(SourceSpan source)
-    : assert(source != null),
-      _scanner = StringScanner(source.text, sourceUrl: source.sourceUrl);
+    : _scanner = StringScanner(source.text, sourceUrl: source.sourceUrl);
 
   ScanResult scan() {
     // Prep
@@ -259,7 +255,7 @@ class _Scanner {
 
     // Build the literal
     final String lexeme = _lexemeBuffer.toString();
-    final double literal = double.tryParse(lexeme);
+    final double? literal = double.tryParse(lexeme);
 
     // Add the token
     _addToken(TokenType.number, literal: literal ?? 0);
@@ -298,9 +294,7 @@ class _Scanner {
     _addToken(type, currentLexeme: lexeme);
   }
   
-  void _string({@required bool doubleQuote}) {
-    assert(doubleQuote != null);
-
+  void _string({required bool doubleQuote}) {
     final int quoteChar = doubleQuote ? $quote : $single_quote;
 
     // Note: We manually increment positions here because strings can be multiline,
@@ -313,7 +307,7 @@ class _Scanner {
     // Read until end of string or EOF
     final literalBuffer = new StringBuffer();
     bool justEscaped = false;
-    int lastChar;
+    int? lastChar;
 
     while (!_isAtEnd()) {
       if (!justEscaped && lastChar == $backslash) {
@@ -491,7 +485,7 @@ class _Scanner {
 
   /// Note: Pass the [currentLexeme] if it has already been read to avoid redundency,
   /// otherwise this call will build it from the [_lexemeBuffer].
-  void _addError(String message, {SourceSpan span, String currentLexeme}) {
+  void _addError(String message, {SourceSpan? span, String? currentLexeme}) {
     span ??= _createSourceSpanForCurrent(currentLexeme);
 
     _errors.add(ParseError(span, message));
@@ -499,7 +493,7 @@ class _Scanner {
 
   /// Note: Pass the [currentLexeme] if it has already been read to avoid redundency,
   /// otherwise this call will build it from the [_lexemeBuffer].
-  void _addToken(TokenType type, {Object literal, String currentLexeme}) {
+  void _addToken(TokenType type, {Object? literal, String? currentLexeme}) {
     // Build the lexeme if not already build
     currentLexeme ??= _lexemeBuffer.toString();
 
@@ -522,7 +516,7 @@ class _Scanner {
   /// 
   /// Pass the [currentLexeme] if it has already been read to avoid redundency,
   /// otherwise this call will build it from the [_lexemeBuffer].
-  SourceSpan _createSourceSpanForCurrent([String currentLexeme]) {
+  SourceSpan _createSourceSpanForCurrent([String? currentLexeme]) {
     return SourceSpan(
       SourceLocation(_startOffset,
         column: _startColumn,
@@ -576,7 +570,7 @@ class _Scanner {
   }
 
   int _peekNext() {
-    return _scanner.peekChar();
+    return _scanner.peekChar()!;
   }
 
   int _read() {

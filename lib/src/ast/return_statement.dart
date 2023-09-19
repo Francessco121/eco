@@ -5,11 +5,9 @@ import 'statement_visitor.dart';
 
 class ReturnStatement implements Statement {
   final Token keyword;
-  final Expression expression;
+  final Expression? expression;
 
-  ReturnStatement(this.keyword, [this.expression]) {
-    if (keyword == null) throw ArgumentError.notNull('keyword');
-  }
+  ReturnStatement(this.keyword, [this.expression]);
 
   @override
   void accept(StatementVisitor visitor) {

@@ -5,9 +5,7 @@ import 'map_pair.dart';
 class MapExpression implements Expression {
   final List<MapPair> pairs;
 
-  MapExpression(this.pairs) {
-    if (pairs == null) throw ArgumentError.notNull('pairs');
-  }
+  MapExpression(this.pairs);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {

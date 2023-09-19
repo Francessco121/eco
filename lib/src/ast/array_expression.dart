@@ -4,9 +4,7 @@ import 'expression_visitor.dart';
 class ArrayExpression implements Expression {
   final List<Expression> values;
 
-  ArrayExpression(this.values) {
-    if (values == null) throw ArgumentError.notNull('values');
-  }
+  ArrayExpression(this.values);
 
   @override
   T accept<T>(ExpressionVisitor<T> visitor) {
